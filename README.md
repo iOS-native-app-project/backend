@@ -10,7 +10,9 @@
 ```bash
 $ npm install
 $ npm install -g @nestjs/cli
+$ npm i @nestjs/graphql graphql-tools graphql apollo-server-express
 $ npm install --save @nestjs/typeorm typeorm pg
+$ npm i --save @nestjs/config
 ```
 
 ## Running the app
