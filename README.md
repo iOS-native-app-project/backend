@@ -1,18 +1,20 @@
 # IOS native app (다함께 작심삼일)
-공부, 운동, 독서 등 같은 목표를 가진 사람들끼리 커뮤니티에서 목표 공유와 진행율을 공유할 수 있는 애플리케이션
+같은 목표(공부, 운동, 독서)를 가진 사람들끼리 커뮤니티에서 목표 공유와 진행율을 공유하는 애플리케이션
 
-## 스펙
-- node : 14.17.5
-- npm : 6.14.11
-- docker : 
+## Tech Stack
+<p>
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=TypeScript&logoColor=white"/></a>&nbsp
+  <img src="https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=NestJS&logoColor=white"/></a>&nbsp
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white"/></a>&nbsp
+  <img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=flat-square&logo=GitHub Actions&logoColor=white"/></a>&nbsp
+  <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat-square&logo=Amazon AWS&logoColor=white"/></a>&nbsp
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white"/></a>&nbsp
+</p>
 
 ## Installation
 ```bash
 $ npm install
 $ npm install -g @nestjs/cli
-$ npm i @nestjs/graphql graphql-tools graphql apollo-server-express
-$ npm install --save @nestjs/typeorm typeorm pg
-$ npm i --save @nestjs/config
 ```
 
 ## Running the app
@@ -25,4 +27,9 @@ $ npm i --save @nestjs/config
   $ npm run start:prod
   ```
 
-## Docker 세팅
+## 프로젝트 데모
+구현중
+
+## 데이터베이스 ERD
+구현중
+
