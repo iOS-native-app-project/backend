@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from 'src/repositories/UserRepository';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
@@ -9,6 +9,7 @@ import { AuthType } from './auth-type.enum';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger('AuthService');
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
@@ -20,7 +21,7 @@ export class AuthService {
   async login(authCredentialsDto: AuthCredentialsDto) {
     const { email } = this.getEmail(authCredentialsDto);
 
-    const user = this.userRepository.findUserByEmail(email);
+    const user = await this.userRepository.findUserByEmail(email);
 
     if (!user) this.userRepository.createUser(email);
 
