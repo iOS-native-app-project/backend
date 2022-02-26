@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { KakaoModule } from './user/login/kakao/kakao.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
@@ -33,10 +32,9 @@ import Joi from 'joi';
       synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
       logging: process.env.TYPEORM_LOGGING === 'true',
     }),
-    KakaoModule,
     AuthModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
