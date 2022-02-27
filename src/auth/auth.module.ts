@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthNaverService } from './social/auth-naver.service';
@@ -8,7 +9,10 @@ import { UserRepository } from 'src/repositories/UserRepository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserRepository])],
+  imports: [
+    TypeOrmModule.forFeature([UserRepository]),
+    HttpModule
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -17,4 +21,4 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     AuthNaverService,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }
