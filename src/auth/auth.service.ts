@@ -16,10 +16,10 @@ export class AuthService {
     private readonly authAppleService: AuthAppleService,
     private readonly authKakaoService: AuthKakaoService,
     private readonly authNaverService: AuthNaverService,
-  ) {}
+  ) { }
 
   async login(authCredentialsDto: AuthCredentialsDto) {
-    const { email } = this.getEmail(authCredentialsDto);
+    const { email } = await this.getEmail(authCredentialsDto);
 
     const user = await this.userRepository.findUserByEmail(email);
 
@@ -34,7 +34,7 @@ export class AuthService {
       case AuthType.APPLE:
       // return this.authAppleService.getEmail(token);
       case AuthType.KAKAO:
-      // return this.authKakaoService.getEmail(token);
+        return this.authKakaoService.getEmail(token);
       case AuthType.NAVER:
         return this.authNaverService.getEmail(token);
       default:
