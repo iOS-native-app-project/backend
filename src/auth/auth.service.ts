@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserRepository } from 'src/repositories/UserRepository';
+import { UserRepository } from 'src/user/user.repository';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { AuthAppleService } from './social/auth-apple.service';
 import { AuthKakaoService } from './social/auth-kakao.service';

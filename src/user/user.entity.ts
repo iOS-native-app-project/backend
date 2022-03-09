@@ -1,9 +1,9 @@
 import { Column, Entity } from 'typeorm';
 import { AuthType } from 'src/auth/auth-type.enum';
-import { AutoIdDeleteDateEntity } from '.';
+import { DeleteEntity } from '../core/core.entity';
 
 @Entity({ name: 'users' })
-export class User extends AutoIdDeleteDateEntity {
+export class User extends DeleteEntity {
   @Column('enum', { name: 'type', enum: AuthType })
   type: string;
 
