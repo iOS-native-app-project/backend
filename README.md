@@ -37,7 +37,7 @@ $ npm install -g @nestjs/cli
 
 ```
 # App
-PORT=8000
+PORT=3000
 
 # Database
 DATABASE_HOST=localhost

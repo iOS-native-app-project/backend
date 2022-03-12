@@ -16,7 +16,7 @@ export abstract class CoreEntity {
   updatedAt!: Date;
 }
 
-export abstract class DeleteEntity extends CoreEntity {
+export abstract class CoreEntityAndDelete extends CoreEntity {
   @DeleteDateColumn({ name: 'deleted_at', select: false })
   deletedAt!: Date;
 }

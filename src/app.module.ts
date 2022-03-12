@@ -1,17 +1,20 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 import Joi from 'joi';
+import ormconfig from './ormconfig';
+import { HttpLoggerMiddleware } from './http-logger.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
-        process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod',
+        process.env.NODE_ENV === 'development'
+          ? '.env.development'
+          : '.env.production',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('development', 'development')
@@ -28,26 +31,15 @@ import Joi from 'joi';
         JWT_REFRESH_TOKEN_EXPIRESIN: Joi.string().required(),
       }),
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get('DATABASE_HOST'),
-        port: configService.get('DATABASE_PORT'),
-        username: configService.get('DATABASE_USERNAME'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: [User],
-        synchronize:
-          configService.get('NODE_ENV') === 'development' ? true : false,
-        logging: configService.get('NODE_ENV') === 'development' ? true : false,
-      }),
-    }),
+    TypeOrmModule.forRoot(ormconfig),
     AuthModule,
     UserModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}
