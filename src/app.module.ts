@@ -1,14 +1,45 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { KakaoModule } from './user/login/kakao/kakao.module';
-import { NaverService } from './user/login/naver/naver.service';
-import { NaverController } from './user/login/naver/naver.controller';
-import { NaverModule } from './user/login/naver/naver.module';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import Joi from 'joi';
+import ormconfig from './ormconfig';
+import { HttpLoggerMiddleware } from './http-logger.middleware';
 
 @Module({
-  imports: [KakaoModule, NaverModule],
-  controllers: [AppController, NaverController],
-  providers: [AppService, NaverService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath:
+        process.env.NODE_ENV === 'development'
+          ? '.env.development'
+          : '.env.production',
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'development')
+          .default('development'),
+        PORT: Joi.number().required(),
+        DATABASE_HOST: Joi.string().required(),
+        DATABASE_PORT: Joi.string().required(),
+        DATABASE_USERNAME: Joi.string().required(),
+        DATABASE_PASSWORD: Joi.string().required(),
+        DATABASE_NAME: Joi.string().required(),
+        JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
+        JWT_ACCESS_TOKEN_EXPIRESIN: Joi.string().required(),
+        JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
+        JWT_REFRESH_TOKEN_EXPIRESIN: Joi.string().required(),
+      }),
+    }),
+    TypeOrmModule.forRoot(ormconfig),
+    AuthModule,
+    UserModule,
+  ],
+  controllers: [],
+  providers: [],
 })
-export class AppModule { }
+export class AppModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}
