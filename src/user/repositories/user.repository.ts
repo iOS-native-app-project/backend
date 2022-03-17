@@ -9,4 +9,14 @@ export class UserRepository extends Repository<User> {
       .where('user.id = :id', { id })
       .getOne();
   }
+
+  async findBySocialId(socialId: number, authType: string, select: boolean) {
+    return await this.createQueryBuilder('user')
+      .addSelect(select ? 'user.refreshToken' : '')
+      .where('user.socialId = :socialId and user.authType = :authType', {
+        socialId,
+        authType,
+      })
+      .getOne();
+  }
 }
