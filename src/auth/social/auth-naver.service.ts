@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { catchError, pluck } from 'rxjs';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { catchError, map, pluck } from 'rxjs';
 
 @Injectable()
 export class AuthNaverService {
@@ -18,8 +18,9 @@ export class AuthNaverService {
       .pipe(
         pluck('data', 'response'),
         catchError(() => {
-          throw new NotFoundException('Tokens do not match.');
+          throw new UnauthorizedException('Tokens do not match.');
         }),
-      );
+      )
+      .toPromise();
   }
 }

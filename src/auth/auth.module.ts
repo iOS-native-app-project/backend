@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthNaverService } from './social/auth-naver.service';
@@ -17,7 +17,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({}),
     TypeOrmModule.forFeature([UserRepository]),
-    UserModule,
+    forwardRef(() => UserModule),
     HttpModule,
   ],
   controllers: [AuthController],
@@ -28,5 +28,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AuthNaverService,
     JwtStrategy,
   ],
+  exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

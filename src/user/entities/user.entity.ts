@@ -13,7 +13,7 @@ export class User extends CoreEntityAndDelete {
   @IsEnum(AuthType, {
     message: 'authType must be a valid enum values (APPLE, KAKAO, NAVER)',
   })
-  @Column({ name: 'type', type: 'enum', enum: AuthType })
+  @Column({ name: 'auth_type', type: 'enum', enum: AuthType })
   authType: string;
 
   @ApiProperty({

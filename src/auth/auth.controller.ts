@@ -51,10 +51,10 @@ export class AuthController {
     },
   })
   @ApiNotFoundResponse({
-    description: '이메일이 잘못 되었습니다.',
+    description: '가입정보가 없습니다.',
   })
   @ApiUnauthorizedResponse({
-    description: '비밀번호가 잘못 되었습니다.',
+    description: '토큰이 잘못되었습니다.',
   })
   @Post('login')
   login(@Body() loginRequestDto: LoginRequestDto) {

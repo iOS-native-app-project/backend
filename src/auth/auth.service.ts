@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -23,20 +25,29 @@ export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private authAppleService: AuthAppleService,
     private authKakaoService: AuthKakaoService,
     private authNaverService: AuthNaverService,
-  ) { }
+  ) {}
 
   async login(loginRequestDto: LoginRequestDto) {
-    const info = this.getInfo(loginRequestDto);
+    const { socialId } = await this.getCertified(loginRequestDto);
 
-    // const user = await this.userRepository.findUserByEmail(email);
-    // if (!user) this.userRepository.createUser(email);
-    return info;
+    const user = await this.userService.findBySocialId(
+      socialId,
+      loginRequestDto.authType,
+    );
+
+    const accessToken = this.getJwtAccessToken(user);
+    const refreshToken = this.getJwtRefreshToken(user);
+
+    await this.updateRefreshToken(user, refreshToken);
+
+    return { tokenType: 'bearer', accessToken, refreshToken };
   }
 
   async logout(user: User) {
@@ -47,7 +58,7 @@ export class AuthService {
     await this.updateRefreshToken(user, null);
   }
 
-  getInfo(loginRequestDto: LoginRequestDto) {
+  async getCertified(loginRequestDto: LoginRequestDto) {
     const { authType, token } = loginRequestDto;
     switch (authType) {
       case AuthType.APPLE:
@@ -55,7 +66,8 @@ export class AuthService {
       case AuthType.KAKAO:
         return; //this.authKakaoService.getCertified(token);
       case AuthType.NAVER:
-        return this.authNaverService.getCertified(token);
+        const { id, email } = await this.authNaverService.getCertified(token);
+        return { socialId: id, email };
       default:
         throw new BadRequestException('The authType is wrong.');
     }
