@@ -29,4 +29,4 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     JwtStrategy,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

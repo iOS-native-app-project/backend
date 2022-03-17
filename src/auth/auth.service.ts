@@ -29,7 +29,7 @@ export class AuthService {
     private authAppleService: AuthAppleService,
     private authKakaoService: AuthKakaoService,
     private authNaverService: AuthNaverService,
-  ) {}
+  ) { }
 
   async login(loginRequestDto: LoginRequestDto) {
     // const { email } = this.getEmail(authCredentialsDto);
