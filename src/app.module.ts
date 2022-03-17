@@ -17,7 +17,7 @@ import { HttpLoggerMiddleware } from './http-logger.middleware';
           : '.env.production',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
-          .valid('development', 'development')
+          .valid('development', 'production')
           .default('development'),
         PORT: Joi.number().required(),
         DATABASE_HOST: Joi.string().required(),
