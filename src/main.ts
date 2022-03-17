@@ -33,7 +33,6 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   const port = configService.get('PORT');
-  await app.listen(port);
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -43,6 +42,8 @@ async function bootstrap() {
     module.hot.accept();
     module.hot.dispose(() => app.close());
   }
+
+  await app.listen(port);
 
   logger.log(`http Server is started on port ${port}`);
 }
