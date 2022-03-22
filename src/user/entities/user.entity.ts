@@ -17,14 +17,6 @@ export class User extends CoreEntityAndDelete {
   authType: string;
 
   @ApiProperty({
-    example: '2TJ_pssasBIDIwbRrAYtn6pWiMiKgx2FZnqy4',
-    description: '소셜 고유 ID',
-  })
-  @Length(1, 100)
-  @Column({ name: 'social_id', type: 'varchar', length: 100 })
-  socialId: string;
-
-  @ApiProperty({
     example: 'user@domain.com',
     description: '이메일',
   })
