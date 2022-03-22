@@ -35,10 +35,10 @@ export class AuthService {
   ) {}
 
   async login(loginRequestDto: LoginRequestDto) {
-    const { socialId } = await this.getCertified(loginRequestDto);
+    const { email } = await this.getEmail(loginRequestDto);
 
-    const user = await this.userService.findBySocialId(
-      socialId,
+    const user = await this.userService.findByEmail(
+      email,
       loginRequestDto.authType,
     );
 
@@ -58,16 +58,15 @@ export class AuthService {
     await this.updateRefreshToken(user, null);
   }
 
-  async getCertified(loginRequestDto: LoginRequestDto) {
+  getEmail(loginRequestDto: LoginRequestDto) {
     const { authType, token } = loginRequestDto;
     switch (authType) {
       case AuthType.APPLE:
         return; //this.authAppleService.getCertified(token);
       case AuthType.KAKAO:
-        return; //this.authKakaoService.getCertified(token);
+        return this.authKakaoService.getEmail(token);
       case AuthType.NAVER:
-        const { id, email } = await this.authNaverService.getCertified(token);
-        return { socialId: id, email };
+        return this.authNaverService.getEmail(token);
       default:
         throw new BadRequestException('The authType is wrong.');
     }

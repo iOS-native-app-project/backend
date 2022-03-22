@@ -1,14 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { catchError, map, pluck } from 'rxjs';
+import { catchError, pluck } from 'rxjs';
 
 @Injectable()
 export class AuthNaverService {
   constructor(private httpService: HttpService) {}
 
-  getCertified(token: string) {
+  getEmail(access_token: string): Promise<{ email: string }> {
     const headers = {
-      Authorization: `bearer ${token}`,
+      Authorization: `bearer ${access_token}`,
     };
 
     return this.httpService
