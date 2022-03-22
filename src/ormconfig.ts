@@ -8,7 +8,6 @@ dotenv.config({
   path: `.env.${isDevelopment ? 'development' : 'production'}`,
 });
 
-console.log(process.env.DATABASE_HOST);
 const connectionOptions: TypeOrmModuleOptions = {
   type: 'mysql',
   host: process.env.DATABASE_HOST,
