@@ -58,25 +58,6 @@ export class AuthService {
     await this.updateRefreshToken(user, null);
   }
 
-  getEmail(loginRequestDto: LoginRequestDto) {
-    const { authType, token } = loginRequestDto;
-    switch (authType) {
-      case AuthType.APPLE:
-        return; //this.authAppleService.getCertified(token);
-      case AuthType.KAKAO:
-        return this.authKakaoService.getEmail(token);
-      case AuthType.NAVER:
-        return this.authNaverService.getEmail(token);
-      default:
-        throw new BadRequestException('The authType is wrong.');
-    }
-  }
-
-  async updateRefreshToken(user: User, token: string | null = null) {
-    user.refreshToken = token;
-    return await this.userRepository.save(user);
-  }
-
   async token(tokenRequestDto: TokenRequestDto) {
     const { refreshToken } = tokenRequestDto;
     const { id, exp } = this.checkJwtRefreshToken(refreshToken);
@@ -99,6 +80,25 @@ export class AuthService {
       accessToken: newAccessToken,
       refhreshToken: newRefhreshToken,
     };
+  }
+
+  updateRefreshToken(user: User, token: string | null = null) {
+    user.refreshToken = token;
+    return this.userRepository.save(user);
+  }
+
+  getEmail(loginRequestDto: LoginRequestDto) {
+    const { authType, token } = loginRequestDto;
+    switch (authType) {
+      case AuthType.APPLE:
+        return; //this.authAppleService.getCertified(token);
+      case AuthType.KAKAO:
+        return this.authKakaoService.getEmail(token);
+      case AuthType.NAVER:
+        return this.authNaverService.getEmail(token);
+      default:
+        throw new BadRequestException('The authType is wrong.');
+    }
   }
 
   getJwtAccessToken(user: User) {
