@@ -5,16 +5,29 @@ import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './http-exception.filter';
 import { HttpResponseInterceptor } from './http-response.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import fs from 'fs';
 
 declare const module: any;
 
 async function bootstrap() {
   const logger = new Logger();
-  const app = await NestFactory.create(AppModule);
+
+  let httpsOptions;
+  try {
+    httpsOptions = {
+      key: fs.readFileSync('/etc/letsencrypt/live/jaksim.app/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/jaksim.app/cert.pem'),
+    };
+  } catch {}
+
+  const app = await NestFactory.create(AppModule, {
+    httpsOptions,
+  });
+
   const configService = app.get(ConfigService);
 
   const config = new DocumentBuilder()
-    .setTitle('JackSim API ')
+    .setTitle('JakSim API ')
     .addTag('Auth')
     .addBearerAuth(
       {
