@@ -18,7 +18,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UploadService } from './upload.service';
 
 @ApiTags('Upload')
-@Controller('uploads')
+@Controller('api/uploads')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
