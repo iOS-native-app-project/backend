@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { AuthType } from 'src/auth/auth-type.enum';
-import { CoreEntityAndDelete } from 'src/core.entity';
+import { CoreEntityAndDelete } from 'src/common/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsNotEmpty, Length } from 'class-validator';
 

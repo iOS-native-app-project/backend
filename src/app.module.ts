@@ -5,7 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import Joi from 'joi';
 import ormconfig from './ormconfig';
-import { HttpLoggerMiddleware } from './http-logger.middleware';
+import { HttpLoggerMiddleware } from './common/http-logger.middleware';
+import { MeetingModule } from './meeting/meeting.module';
 import { UploadModule } from './upload/upload.module';
 
 @Module({
@@ -39,6 +40,7 @@ import { UploadModule } from './upload/upload.module';
     TypeOrmModule.forRoot(ormconfig),
     AuthModule,
     UserModule,
+    MeetingModule,
     UploadModule,
   ],
   controllers: [],
