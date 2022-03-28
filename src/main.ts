@@ -2,10 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpExceptionFilter } from './http-exception.filter';
-import { HttpResponseInterceptor } from './http-response.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fs from 'fs';
+import { HttpExceptionFilter } from './common/http-exception.filter';
+import { HttpResponseInterceptor } from './common/http-response.interceptor';
 
 declare const module: any;
 
@@ -18,7 +18,7 @@ async function bootstrap() {
       key: fs.readFileSync('/etc/letsencrypt/live/jaksim.app/privkey.pem'),
       cert: fs.readFileSync('/etc/letsencrypt/live/jaksim.app/cert.pem'),
     };
-  } catch {}
+  } catch { }
 
   const app = await NestFactory.create(AppModule, {
     httpsOptions,
