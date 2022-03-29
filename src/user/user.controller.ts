@@ -4,9 +4,9 @@ import { CreateUserRequestDto } from './dto/create-user.requset.dto';
 import { UserService } from './user.service';
 
 @ApiTags('User')
-@Controller('api/users')
+@Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @ApiOperation({
     summary: '회원가입',
