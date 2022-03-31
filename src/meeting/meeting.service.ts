@@ -32,19 +32,18 @@ export class MeetingService {
     return meetingInfo;
   }
 
-  // 검색어로 검색 (카테고리,모임명,한줄소개)
+  // 검색어로 검색 (모임명,한줄소개)
   async getMeetingBySearch(
     pageNo = 1,
     pageSize = 20,
     search: string
   ) {
-    const meetingInfo = await this.meetingRepository.find({
-      skip: (pageNo - 1) * pageSize,
-      take: pageSize,
-      where: {
-        name: ILike(`%${search}%`)
-      }
-    });
+    const meetingInfo = await this.meetingRepository.createQueryBuilder("meeting")
+      .where("meeting.name like :name", { name: '%' + search + '%' })
+      .orWhere("meeting.descript like :descript", { descript: '%' + search + '%' })
+      .skip(pageNo)
+      .take(pageSize)
+      .getMany();
 
     if (meetingInfo.length === 0) {
       return '검색 결과가 없습니다.';
