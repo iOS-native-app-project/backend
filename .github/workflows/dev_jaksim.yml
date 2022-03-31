@@ -1,0 +1,34 @@
+name: JAKSIM API dev Build
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'dev_jaksimapi.*.*.*'
+jobs:
+  build:
+    name: Dev JAKSIM API Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: AWS ECR Login # aws_account_id.dkr.ecr.region.amazonaws.com
+        run: aws ecr get-login-password | docker login --username AWS --password-stdin ${{ secrets.ACCOUNT }}
+
+      - name: Docker Build
+        run: docker build -f Dockerfile.dev --no-cache -t ${{ secrets.JAKSIM_ECR_URL }}:dev .
+
+      - name: ADD Commit Tag For Docker Images
+        run: docker tag ${{ secrets.JAKSIM_ECR_URL }}:dev ${{ secrets.JAKSIM_ECR_URL }}:$(git describe --tags | sed s/[q]//g)
+
+      - name: Commit Tag Based Docker Image Push
+        run: docker push ${{ secrets.JAKSIM_ECR_URL }}:$(git describe --tags | sed s/[q]//g)
+
+      - name: Latest Based Docker Image Push
+        run: docker push ${{ secrets.JAKSIM_ECR_URL }}:dev
