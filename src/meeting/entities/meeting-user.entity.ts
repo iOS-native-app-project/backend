@@ -1,9 +1,9 @@
-import { CoreEntity } from "src/common/core.entity";
+import { CoreEntity } from "src/common/entity/core.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
 import { Meeting } from "./meeting.entity";
 
-@Entity()
+@Entity({ name: 'meeting_user' })
 export class MeetingUser extends CoreEntity {
   @Column('int', { name: 'meeting_id' })
   meeting_id: string;
@@ -18,7 +18,7 @@ export class MeetingUser extends CoreEntity {
   report: number;
 
 
-  @ManyToOne(
+  @OneToMany(
     () => Meeting,
     (tbMeeting) => tbMeeting.id,
     { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
@@ -26,7 +26,7 @@ export class MeetingUser extends CoreEntity {
   @JoinColumn([{ name: 'meeting_id' }])
   meeting: Meeting;
 
-  @ManyToOne(
+  @OneToMany(
     () => User,
     (tbUser) => tbUser.id,
     { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
