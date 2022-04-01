@@ -10,12 +10,34 @@ export class MeetingService {
     private meetingRepository: Repository<Meeting>,
   ) { }
 
-  // 카테고리로 검색 (필터) 
-  // TODO : 카테고리 배열
-  async getMeetingByCategory(
+  // 모임 첫 화면
+  async getMeeting(
+    user_id: number,
     pageNo = 1,
     pageSize = 20,
-    category_id: number
+  ) {
+    const meetingInfo = await this.meetingRepository.find({
+      skip: (pageNo - 1) * pageSize,
+      take: pageSize,
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+
+    if (meetingInfo.length === 0) {
+      return '검색 결과가 없습니다.';
+    }
+
+    return meetingInfo;
+  }
+
+  // 카테고리로 검색 (필터) 
+  // TODO : 카테고리 배열 추가, user 추가 
+  async getMeetingByCategory(
+    category_id: number,
+    user_id: number,
+    pageNo = 1,
+    pageSize = 20,
   ) {
     const meetingInfo = await this.meetingRepository.find({
       skip: (pageNo - 1) * pageSize,
@@ -32,11 +54,13 @@ export class MeetingService {
     return meetingInfo;
   }
 
-  // 검색어로 검색 (모임명,한줄소개)
+  // 검색어로 검색 (모임명,한줄소개) 
+  // TODO : user 추가
   async getMeetingBySearch(
+    search: string,
+    user_id: number,
     pageNo = 1,
     pageSize = 20,
-    search: string
   ) {
     const meetingInfo = await this.meetingRepository.createQueryBuilder("meeting")
       .where("meeting.name like :name", { name: '%' + search + '%' })
