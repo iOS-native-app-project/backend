@@ -24,6 +24,7 @@ async function bootstrap() {
     httpsOptions,
   });
 
+  app.setGlobalPrefix('api');
   const configService = app.get(ConfigService);
 
   const config = new DocumentBuilder()
