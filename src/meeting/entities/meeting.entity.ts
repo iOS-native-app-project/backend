@@ -1,5 +1,6 @@
 import { CoreEntity } from "src/common/entity/core.entity";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { User } from "src/user/entities/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { Category } from "./category.entity";
 import { MeetingUser } from "./meeting-user.entity";
 
@@ -35,7 +36,7 @@ export class Meeting extends CoreEntity {
   @Column('int', { name: 'value', comment: '상세달성수치' })
   value: number;
 
-  @OneToOne(
+  @OneToMany(
     () => Category,
     (tbCategory) => tbCategory.id,
     { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
@@ -48,4 +49,12 @@ export class Meeting extends CoreEntity {
     (tbMeetingUser) => tbMeetingUser.meeting,
   )
   meetingUser: MeetingUser;
+
+  @ManyToOne(
+    () => User,
+    (tbUser) => tbUser.id,
+    { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
+  )
+  @JoinColumn([{ name: 'owner_id' }])
+  user: User;
 }
