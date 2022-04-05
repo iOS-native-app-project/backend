@@ -6,15 +6,15 @@ export class MeetingController {
   constructor(private readonly meetingService: MeetingService) { }
   @Get('/user/:user_id')
   async getMeeting(@Param() user_id: number) {
-    await this.meetingService.getMeeting(user_id);
+    return await this.meetingService.getMeeting(user_id);
   }
 
-  @Get('/user/:user_id/category/:category_id')
+  @Get('/user/:user_id/category')
   async getMeetingByCategory(
     @Param('user_id') user_id: number,
-    @Param('category_id') category_id: number
+    @Body('category_id') category_id: number[]
   ) {
-    await this.meetingService.getMeetingByCategory(category_id, user_id);
+    return await this.meetingService.getMeetingByCategory(category_id, user_id);
   }
 
   @Get('/user/:user_id/search/:search')
@@ -22,6 +22,13 @@ export class MeetingController {
     @Param('user_id') user_id: number,
     @Param('search') search: string
   ) {
-    await this.meetingService.getMeetingBySearch(search, user_id);
+    return await this.meetingService.getMeetingBySearch(search, user_id);
+  }
+
+  @Get('/user/:user_id/own')
+  async getMeetingByUserId(
+    @Param('user_id') user_id: number,
+  ) {
+    return await this.meetingService.getMeetingByUserId(user_id);
   }
 }
