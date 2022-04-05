@@ -1,6 +1,7 @@
 import { CoreEntity } from "src/common/entity/core.entity";
-import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Category } from "./category.entity";
+import { MeetingUser } from "./meeting-user.entity";
 
 @Entity({ name: 'meeting' })
 export class Meeting extends CoreEntity {
@@ -10,13 +11,13 @@ export class Meeting extends CoreEntity {
   @Column('varchar', { name: 'image', length: 150, comment: '모임 이미지' })
   image: string;
 
-  @Column('int', { name: 'category_id' })
+  @Column('int', { name: 'category_id', default: 1 })
   category_id: number;
 
   @Column('varchar', { name: 'descript', length: 200, default: 'NULL', comment: '모임 설명' })
   descript: string;
 
-  @Column('int', { name: 'limit', comment: '인원수 제한' })
+  @Column('int', { name: 'limit', comment: '인원수 제한', default: 10 })
   limit: number;
 
   @Column('int', { name: 'owner_id', comment: '방장' })
@@ -41,4 +42,10 @@ export class Meeting extends CoreEntity {
   )
   @JoinColumn([{ name: 'category_id' }])
   category: Category;
+
+  @ManyToOne(
+    () => MeetingUser,
+    (tbMeetingUser) => tbMeetingUser.meeting,
+  )
+  meetingUser: MeetingUser[];
 }

@@ -20,7 +20,7 @@ export class MeetingUser extends CoreEntity {
 
   @OneToMany(
     () => Meeting,
-    (tbMeeting) => tbMeeting.id,
+    (tbMeeting) => tbMeeting.meetingUser,
     { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
   )
   @JoinColumn([{ name: 'meeting_id' }])
