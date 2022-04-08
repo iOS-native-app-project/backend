@@ -22,15 +22,6 @@ export class MeetingService {
     pageNo = 1,
     pageSize = 10,
   ): Promise<SearchMeetingOutput> {
-    // const meetingInfo = await this.meetingUserRepository
-    //   .createQueryBuilder("meeting_user")
-    //   .leftJoin('meeting_user.meeting_id', 'meeting')
-    //   .where('meeting_user.meeting_id = :id', { user_id })
-    //   .skip(pageNo)
-    //   .take(pageSize)
-    //   .getMany();
-    // console.log(meetingInfo);
-
     const meetingInfo = await this.meetingRepository.find({
       skip: (pageNo - 1) * pageSize,
       take: pageSize,
@@ -41,7 +32,6 @@ export class MeetingService {
         alias: 'meeting_user',
       }
     });
-    console.log(meetingInfo);
 
     if (meetingInfo.length === 0) {
       return {
@@ -50,6 +40,18 @@ export class MeetingService {
         msg: '검색 결과가 없습니다.'
       }
     }
+
+    let myMeeting = await this.getMeetingByUserId(user_id);
+    console.log(myMeeting);
+
+    if (myMeeting) {
+      // console.log(myMeeting.data.meeting_id);
+    }
+
+
+    meetingInfo.forEach((element) => {
+      element['status'] = true;
+    });
 
     return {
       status: 'SUCCESS',

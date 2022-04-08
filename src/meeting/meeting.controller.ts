@@ -5,7 +5,7 @@ import { MeetingService } from './meeting.service';
 export class MeetingController {
   constructor(private readonly meetingService: MeetingService) { }
   @Get('/user/:user_id')
-  async getMeeting(@Param() user_id: number) {
+  async getMeeting(@Param('user_id') user_id: number) {
     return await this.meetingService.getMeeting(user_id);
   }
 
