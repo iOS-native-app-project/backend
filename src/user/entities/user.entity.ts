@@ -2,7 +2,13 @@ import { Column, Entity } from 'typeorm';
 import { AuthType } from 'src/auth/auth-type.enum';
 import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+} from 'class-validator';
 
 @Entity({ name: 'users' })
 export class User extends CoreEntityAndDelete {
@@ -17,7 +23,7 @@ export class User extends CoreEntityAndDelete {
   authType: string;
 
   @ApiProperty({
-    example: 'user@domain.com',
+    example: 'user@jaksim.app',
     description: '이메일',
   })
   @IsEmail()
@@ -27,10 +33,22 @@ export class User extends CoreEntityAndDelete {
   @ApiProperty({
     example: '유저',
     description: '닉네임',
+    required: false,
   })
   @Length(1, 10)
+  @IsOptional()
   @Column({ name: 'nick_name', type: 'varchar', length: 10, nullable: true })
   nickName: string;
+
+  @ApiProperty({
+    example: 'img.png',
+    description: '이미지 경로',
+    required: false,
+  })
+  @Length(1, 100)
+  @IsOptional()
+  @Column({ name: 'image_path', type: 'varchar', length: 100, nullable: true })
+  imagePath: string;
 
   @ApiProperty({
     example:
