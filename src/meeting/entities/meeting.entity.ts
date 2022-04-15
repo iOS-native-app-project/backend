@@ -1,9 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { CoreEntity } from "src/common/core.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { CoreEntity } from "src/common/entity/core.entity";
+import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
 import { Category } from "./category.entity";
 
-@Entity()
+@Entity({ name: 'meeting' })
 export class Meeting extends CoreEntity {
   @Column('varchar', { name: 'name', length: 100, comment: '모임 이름' })
   name: string;
@@ -35,8 +34,7 @@ export class Meeting extends CoreEntity {
   @Column('int', { name: 'value', comment: '상세달성수치' })
   value: number;
 
-  @ApiProperty({ readOnly: true })
-  @OneToOne(
+  @OneToMany(
     () => Category,
     (tbCategory) => tbCategory.id,
     { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
