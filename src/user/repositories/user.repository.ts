@@ -10,13 +10,10 @@ export class UserRepository extends Repository<User> {
       .getOne();
   }
 
-  async findByEmail(email: string, authType: string, select: boolean) {
+  async findByUid(uid: string, select: boolean) {
     return await this.createQueryBuilder('user')
       .addSelect(select ? 'user.refreshToken' : '')
-      .where('user.email = :email and user.authType = :authType', {
-        email,
-        authType,
-      })
+      .where('user.uid = :uid ', { uid })
       .getOne();
   }
 }

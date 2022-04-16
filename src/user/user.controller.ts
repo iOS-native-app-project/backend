@@ -6,7 +6,7 @@ import { UserService } from './user.service';
 @ApiTags('User')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @ApiOperation({
     summary: '회원가입',

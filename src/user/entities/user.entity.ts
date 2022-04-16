@@ -1,36 +1,24 @@
 import { Column, Entity } from 'typeorm';
-import { AuthType } from 'src/auth/auth-type.enum';
 import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, Length } from 'class-validator';
+import { IsNotEmpty, Length } from 'class-validator';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'user' })
 export class User extends CoreEntityAndDelete {
   @ApiProperty({
     example: 'KAKAO',
     description: '소셜 로그인 종류',
   })
-  @IsEnum(AuthType, {
-    message: 'authType must be a valid enum values (APPLE, KAKAO, NAVER)',
-  })
-  @Column({ name: 'auth_type', type: 'enum', enum: AuthType })
-  authType: string;
-
-  @ApiProperty({
-    example: 'user@domain.com',
-    description: '이메일',
-  })
-  @IsEmail()
-  @Column({ name: 'email', type: 'varchar', length: 30 })
-  email: string;
+  @Column({ name: 'uid', type: 'varchar' })
+  uid: string;
 
   @ApiProperty({
     example: '유저',
     description: '닉네임',
   })
   @Length(1, 10)
-  @Column({ name: 'nick_name', type: 'varchar', length: 10, nullable: true })
-  nickName: string;
+  @Column({ name: 'nickname', type: 'varchar', length: 10, nullable: true })
+  nickname: string;
 
   @ApiProperty({
     example:
