@@ -18,7 +18,7 @@ async function bootstrap() {
       key: fs.readFileSync('/etc/letsencrypt/live/jaksim.app/privkey.pem'),
       cert: fs.readFileSync('/etc/letsencrypt/live/jaksim.app/cert.pem'),
     };
-  } catch { }
+  } catch {}
 
   const app = await NestFactory.create(AppModule, {
     httpsOptions,
