@@ -42,9 +42,9 @@ export class UserService {
   }
 
   async updateUser(updateUserRequestDto: UpdateUserRequestDto, user: User) {
-    const { nickName, imagePath } = updateUserRequestDto;
+    const { nickname, imagePath } = updateUserRequestDto;
 
-    if (nickName) user.nickName = nickName;
+    if (nickname) user.nickname = nickname;
     if (imagePath) user.imagePath = imagePath;
 
     await this.userRepository.save(user);
