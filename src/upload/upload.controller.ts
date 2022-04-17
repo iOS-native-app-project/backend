@@ -20,7 +20,7 @@ import { UploadService } from './upload.service';
 @ApiTags('Upload')
 @Controller('uploads')
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) { }
+  constructor(private readonly uploadService: UploadService) {}
 
   @ApiOperation({
     summary: '파일 업로드',

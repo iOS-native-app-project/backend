@@ -15,10 +15,21 @@ export class User extends CoreEntityAndDelete {
   @ApiProperty({
     example: '유저',
     description: '닉네임',
+    required: false,
   })
   @Length(1, 10)
   @Column({ name: 'nickname', type: 'varchar', length: 10, nullable: true })
   nickname: string;
+
+  @ApiProperty({
+    example: 'img.png',
+    description: '이미지 경로',
+    required: false,
+  })
+  @Length(1, 100)
+  @IsOptional()
+  @Column({ name: 'image_path', type: 'varchar', length: 100, nullable: true })
+  imagePath: string;
 
   @ApiProperty({
     example:
