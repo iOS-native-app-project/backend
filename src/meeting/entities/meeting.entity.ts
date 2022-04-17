@@ -1,8 +1,8 @@
-import { CoreEntity } from "src/common/entity/core.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
-import { Category } from "./category.entity";
-import { MeetingUser } from "./meeting-user.entity";
+import { MeetingUser } from './meeting-user.entity';
+import { CoreEntity } from 'src/common/entity/core.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Category } from '../../category/entities/category.entity';
 
 @Entity({ name: 'meeting' })
 export class Meeting extends CoreEntity {
@@ -15,7 +15,12 @@ export class Meeting extends CoreEntity {
   @Column('int', { name: 'category_id', default: 1 })
   category_id: number;
 
-  @Column('varchar', { name: 'descript', length: 200, default: 'NULL', comment: '모임 설명' })
+  @Column('varchar', {
+    name: 'descript',
+    length: 200,
+    default: 'NULL',
+    comment: '모임 설명',
+  })
   descript: string;
 
   @Column('int', { name: 'limit', comment: '인원수 제한', default: 10 })
@@ -27,34 +32,38 @@ export class Meeting extends CoreEntity {
   @Column('varchar', { name: 'password', length: 100, default: 'NULL' })
   password: string;
 
-  @Column('int', { name: 'cycle', comment: '주기 (0:하루,1:일주일,2:한달)', default: 0 })
+  @Column('int', {
+    name: 'cycle',
+    comment: '주기 (0:하루,1:일주일,2:한달)',
+    default: 0,
+  })
   cycle: number;
 
-  @Column('varchar', { name: 'unit', length: 100, default: '횟수', comment: '단위 (횟수,거리,시간)' })
+  @Column('varchar', {
+    name: 'unit',
+    length: 100,
+    default: '횟수',
+    comment: '단위 (횟수,거리,시간)',
+  })
   unit: string;
 
   @Column('int', { name: 'value', comment: '상세달성수치' })
   value: number;
 
-  @OneToMany(
-    () => Category,
-    (tbCategory) => tbCategory.id,
-    { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
-  )
+  @OneToMany(() => Category, (tbCategory) => tbCategory.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
   @JoinColumn([{ name: 'category_id' }])
   category: Category;
 
-  @OneToMany(
-    () => MeetingUser,
-    (tbMeetingUser) => tbMeetingUser.meeting,
-  )
+  @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meeting)
   meetingUser: MeetingUser;
 
-  @ManyToOne(
-    () => User,
-    (tbUser) => tbUser.id,
-    { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
-  )
+  @ManyToOne(() => User, (tbUser) => tbUser.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
   @JoinColumn([{ name: 'owner_id' }])
   user: User;
 }

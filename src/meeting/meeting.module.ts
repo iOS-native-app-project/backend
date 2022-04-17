@@ -6,11 +6,9 @@ import { MeetingController } from './meeting.controller';
 import { MeetingService } from './meeting.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Meeting, MeetingUser]),
-  ],
+  imports: [TypeOrmModule.forFeature([Meeting, MeetingUser])],
   controllers: [MeetingController],
   providers: [MeetingService],
-  exports: [MeetingService]
+  exports: [MeetingService],
 })
-export class MeetingModule { }
+export class MeetingModule {}

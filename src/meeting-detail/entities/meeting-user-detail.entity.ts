@@ -1,6 +1,6 @@
-import { CoreEntity } from "src/common/entity/core.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
-import { MeetingUser } from "./meeting-user.entity";
+import { CoreEntity } from 'src/common/entity/core.entity';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { MeetingUser } from '../../meeting/entities/meeting-user.entity';
 
 @Entity({ name: 'meeting_user_detail' })
 export class MeetingUserDetail extends CoreEntity {
@@ -19,11 +19,10 @@ export class MeetingUserDetail extends CoreEntity {
   @Column('varchar', { name: 'descript', length: 200, default: 'NULL' })
   descript: string;
 
-  @OneToOne(
-    () => MeetingUser,
-    (tbMeetingUser) => tbMeetingUser.id,
-    { onDelete: 'RESTRICT', onUpdate: 'RESTRICT' },
-  )
+  @OneToOne(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
   @JoinColumn([{ name: 'meeting_user_id' }])
   meetingUser: MeetingUser;
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import { Connection, ILike, In, Repository } from 'typeorm';
+import { Connection, In, Repository } from 'typeorm';
 import { SearchMeetingOutput } from './dto/search-meeting.dto';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
@@ -14,7 +14,7 @@ export class MeetingService {
     private meetingRepository: Repository<Meeting>,
     @InjectRepository(MeetingUser)
     private meetingUserRepository: Repository<MeetingUser>,
-  ) { }
+  ) {}
 
   // 모임 첫 화면
   async getMeeting(
@@ -26,28 +26,27 @@ export class MeetingService {
       skip: (pageNo - 1) * pageSize,
       take: pageSize,
       order: {
-        createdAt: 'DESC'
+        createdAt: 'DESC',
       },
       join: {
         alias: 'meeting_user',
-      }
+      },
     });
 
     if (meetingInfo.length === 0) {
       return {
         status: 'SUCCESS',
         code: 200,
-        msg: '검색 결과가 없습니다.'
-      }
+        msg: '검색 결과가 없습니다.',
+      };
     }
 
-    let myMeeting = await this.getMeetingByUserId(user_id);
+    const myMeeting = await this.getMeetingByUserId(user_id);
     console.log(myMeeting);
 
     if (myMeeting) {
       // console.log(myMeeting.data.meeting_id);
     }
-
 
     meetingInfo.forEach((element) => {
       element['status'] = true;
@@ -56,8 +55,8 @@ export class MeetingService {
     return {
       status: 'SUCCESS',
       code: 200,
-      data: meetingInfo
-    }
+      data: meetingInfo,
+    };
   }
 
   // 카테고리 필터 검색
@@ -71,26 +70,26 @@ export class MeetingService {
       skip: (pageNo - 1) * pageSize,
       take: pageSize,
       where: {
-        category_id: In(category_id)
-      }
+        category_id: In(category_id),
+      },
     });
 
     if (meetingInfo.length === 0) {
       return {
         status: 'SUCCESS',
         code: 200,
-        msg: '검색 결과가 없습니다.'
-      }
+        msg: '검색 결과가 없습니다.',
+      };
     }
 
     return {
       status: 'SUCCESS',
       code: 200,
-      data: meetingInfo
-    }
+      data: meetingInfo,
+    };
   }
 
-  // 검색어로 검색 (모임명,한줄소개) 
+  // 검색어로 검색 (모임명,한줄소개)
   // TODO : user 추가
   async getMeetingBySearch(
     search: string,
@@ -98,9 +97,12 @@ export class MeetingService {
     pageNo = 1,
     pageSize = 10,
   ) {
-    const meetingInfo = await this.meetingRepository.createQueryBuilder("meeting")
-      .where("meeting.name like :name", { name: '%' + search + '%' })
-      .orWhere("meeting.descript like :descript", { descript: '%' + search + '%' })
+    const meetingInfo = await this.meetingRepository
+      .createQueryBuilder('meeting')
+      .where('meeting.name like :name', { name: '%' + search + '%' })
+      .orWhere('meeting.descript like :descript', {
+        descript: '%' + search + '%',
+      })
       .skip(pageNo)
       .take(pageSize)
       .getMany();
@@ -109,38 +111,37 @@ export class MeetingService {
       return {
         status: 'SUCCESS',
         code: 200,
-        msg: '검색 결과가 없습니다.'
-      }
+        msg: '검색 결과가 없습니다.',
+      };
     }
 
     return {
       status: 'SUCCESS',
       code: 200,
-      data: meetingInfo
-    }
+      data: meetingInfo,
+    };
   }
 
   // 내 모임 검색
-  async getMeetingByUserId(
-    user_id: number,
-  ) {
+  async getMeetingByUserId(user_id: number) {
     const meetingInfo = await this.connection.query(
       `select * from meeting m left outer join meeting_user m_user 
-      on m_user.meeting_id = m.id where m_user.user_id = ?`, [user_id]
+      on m_user.meeting_id = m.id where m_user.user_id = ?`,
+      [user_id],
     );
 
     if (meetingInfo.length === 0) {
       return {
         status: 'SUCCESS',
         code: 200,
-        msg: '검색 결과가 없습니다.'
-      }
+        msg: '검색 결과가 없습니다.',
+      };
     }
 
     return {
       status: 'SUCCESS',
       code: 200,
-      data: meetingInfo
-    }
+      data: meetingInfo,
+    };
   }
 }
