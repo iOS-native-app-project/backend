@@ -35,12 +35,9 @@ export class AuthService {
   ) {}
 
   async login(loginRequestDto: LoginRequestDto) {
-    const { email } = await this.getEmail(loginRequestDto);
+    const { uid } = await this.getUid(loginRequestDto);
 
-    const user = await this.userService.findByEmail(
-      email,
-      loginRequestDto.authType,
-    );
+    const user = await this.userService.findByUid(uid);
 
     const accessToken = this.getJwtAccessToken(user);
     const refreshToken = this.getJwtRefreshToken(user);
@@ -87,23 +84,23 @@ export class AuthService {
     return this.userRepository.save(user);
   }
 
-  getEmail(loginRequestDto: LoginRequestDto) {
+  getUid(loginRequestDto: LoginRequestDto) {
     const { authType, token } = loginRequestDto;
     switch (authType) {
-      case AuthType.APPLE:
-        return; //this.authAppleService.getCertified(token);
+      // case AuthType.APPLE:
+      //   return; //this.authAppleService.getCertified(token);
       case AuthType.KAKAO:
-        return this.authKakaoService.getEmail(token);
+        return this.authKakaoService.getUid(token);
       case AuthType.NAVER:
-        return this.authNaverService.getEmail(token);
+        return this.authNaverService.getUid(token);
       default:
         throw new BadRequestException('The authType is wrong.');
     }
   }
 
   getJwtAccessToken(user: User) {
-    const { id, email, nickName } = user;
-    const payload = { id, email, nickName };
+    const { id, nickname } = user;
+    const payload = { id, nickname };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXPIRESIN')}`,

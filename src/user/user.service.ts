@@ -23,15 +23,14 @@ export class UserService {
   ) {}
 
   async createUser(createUserRequestDto: CreateUserRequestDto) {
-    const { authType, token, nickName } = createUserRequestDto;
-    const { email } = await this.authService.getEmail(createUserRequestDto);
+    const { authType, token, nickname } = createUserRequestDto;
+    const { uid } = await this.authService.getUid(createUserRequestDto);
 
-    await this.isDuplicated(email, authType);
+    await this.isDuplicated(uid);
 
     const user = new User();
-    user.authType = authType;
-    user.email = email;
-    user.nickName = nickName;
+    user.uid = uid;
+    user.nickname = nickname;
 
     await this.userRepository.save(user);
 
@@ -61,16 +60,16 @@ export class UserService {
     return user;
   }
 
-  async findByEmail(email: string, authType: string, select = false) {
-    const user = await this.userRepository.findByEmail(email, authType, select);
+  async findByUid(uid: string, select = false) {
+    const user = await this.userRepository.findByUid(uid, select);
 
     if (!user) throw new NotFoundException('There is no matching information.');
 
     return user;
   }
 
-  async isDuplicated(email: string, authType: string, select = false) {
-    const user = await this.userRepository.findByEmail(email, authType, select);
+  async isDuplicated(uid: string, select = false) {
+    const user = await this.userRepository.findByUid(uid, select);
 
     if (user) throw new ForbiddenException("It's duplicated.");
 
