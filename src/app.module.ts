@@ -8,6 +8,8 @@ import ormconfig from './ormconfig';
 import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { MeetingModule } from './meeting/meeting.module';
 import { UploadModule } from './upload/upload.module';
+import { CategoryModule } from './category/category.module';
+import { MeetingDetailModule } from './meeting-detail/meeting-detail.module';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { UploadModule } from './upload/upload.module';
     UserModule,
     MeetingModule,
     UploadModule,
+    CategoryModule,
+    MeetingDetailModule,
   ],
   controllers: [],
   providers: [],
