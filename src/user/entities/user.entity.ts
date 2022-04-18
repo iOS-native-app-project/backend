@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Length } from 'class-validator';
+import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 
 @Entity({ name: 'user' })
 export class User extends CoreEntityAndDelete {

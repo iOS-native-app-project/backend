@@ -60,7 +60,7 @@ export class UserController {
           id: 1,
           authType: 'NAVER',
           email: 'user@jaksim.app',
-          nickName: null,
+          nickname: null,
           imagePath: null,
           refreshToken:
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQ2NDI5NTc0LCJleHAiOjE2NDY1MTU5NzR9.y0laz-HyxDPkV8LXxeGitO6bddcBt_vhBA8RekEIozk',
@@ -92,7 +92,7 @@ export class UserController {
           id: 1,
           authType: 'NAVER',
           email: 'user@jaksim.app',
-          nickName: null,
+          nickname: null,
           imagePath: null,
           refreshToken:
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQ2NDI5NTc0LCJleHAiOjE2NDY1MTU5NzR9.y0laz-HyxDPkV8LXxeGitO6bddcBt_vhBA8RekEIozk',
