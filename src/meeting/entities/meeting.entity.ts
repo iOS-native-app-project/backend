@@ -60,10 +60,10 @@ export class Meeting extends CoreEntity {
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meeting)
   meetingUser: MeetingUser;
 
-  @ManyToOne(() => User, (tbUser) => tbUser.id, {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  })
-  @JoinColumn([{ name: 'owner_id' }])
-  user: User;
+  // @ManyToOne(() => User, (tbUser) => tbUser.id, {
+  //   onDelete: 'RESTRICT',
+  //   onUpdate: 'RESTRICT',
+  // })
+  // @JoinColumn([{ name: 'owner_id' }])
+  // user: User;
 }
