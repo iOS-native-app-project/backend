@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [16.14.2]
 
     steps:
       - uses: actions/checkout@v2
@@ -24,8 +24,8 @@ jobs:
       - name: Create env file
         working-directory: ./server
         run: |
-          touch .env
-          cat << EOF >> .env
+          touch .env.production
+          cat << EOF >> .env.production
           ${{ secrets.ENV }}
 
       - name: Install dependencies & build files
