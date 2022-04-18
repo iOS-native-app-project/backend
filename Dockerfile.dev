@@ -23,10 +23,7 @@ RUN nest build
 FROM installer
 WORKDIR /app
 
-ENV NODE_ENV=prod
+ENV NODE_ENV=production
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/.env.development ./
-
-CMD ["node", "dist/main.js"]
-EXPOSE 3001
+CMD ["npm", "run", "start"]
+EXPOSE 3000
