@@ -1,37 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import { Connection, In, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In } from 'typeorm';
 import { SearchMeetingOutput } from './dto/search-meeting.dto';
-import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
+import { MeetingUserRepository } from './repositories/meeting-user.repository';
+import { MeetingRepository } from './repositories/meeting.repository';
 
 @Injectable()
 export class MeetingService {
   constructor(
-    @InjectConnection()
-    private connection: Connection,
-    @InjectRepository(Meeting)
-    private meetingRepository: Repository<Meeting>,
-    @InjectRepository(MeetingUser)
-    private meetingUserRepository: Repository<MeetingUser>,
+    @InjectRepository(MeetingRepository)
+    private meetingRepository: MeetingRepository,
+    @InjectRepository(MeetingUserRepository)
+    private meetingUserRepository: MeetingUserRepository,
   ) {}
 
   // 모임 첫 화면
-  async getMeeting(
-    user_id: number,
-    pageNo = 1,
-    pageSize = 10,
-  ): Promise<SearchMeetingOutput> {
-    const meetingInfo = await this.meetingRepository.find({
-      skip: (pageNo - 1) * pageSize,
-      take: pageSize,
-      order: {
-        createdAt: 'DESC',
-      },
-      join: {
-        alias: 'meeting_user',
-      },
-    });
+  async getMeeting(user_id: number): Promise<SearchMeetingOutput> {
+    const meetingInfo = await this.meetingRepository.find();
 
     if (meetingInfo.length === 0) {
       return {
@@ -40,22 +26,12 @@ export class MeetingService {
         msg: '검색 결과가 없습니다.',
       };
     }
-
-    const myMeeting = await this.getMeetingByUserId(user_id);
-    console.log(myMeeting);
-
-    if (myMeeting) {
-      // console.log(myMeeting.data.meeting_id);
-    }
-
-    meetingInfo.forEach((element) => {
-      element['status'] = true;
-    });
+    const meetingData = await this.setJoinData(user_id, meetingInfo);
 
     return {
       status: 'SUCCESS',
       code: 200,
-      data: meetingInfo,
+      data: meetingData,
     };
   }
 
@@ -63,71 +39,9 @@ export class MeetingService {
   async getMeetingByCategory(
     category_id: number[],
     user_id: number,
-    pageNo = 1,
-    pageSize = 10,
-  ) {
-    const meetingInfo = await this.meetingRepository.find({
-      skip: (pageNo - 1) * pageSize,
-      take: pageSize,
-      where: {
-        category_id: In(category_id),
-      },
-    });
-
-    if (meetingInfo.length === 0) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-        msg: '검색 결과가 없습니다.',
-      };
-    }
-
-    return {
-      status: 'SUCCESS',
-      code: 200,
-      data: meetingInfo,
-    };
-  }
-
-  // 검색어로 검색 (모임명,한줄소개)
-  // TODO : user 추가
-  async getMeetingBySearch(
-    search: string,
-    user_id: number,
-    pageNo = 1,
-    pageSize = 10,
-  ) {
-    const meetingInfo = await this.meetingRepository
-      .createQueryBuilder('meeting')
-      .where('meeting.name like :name', { name: '%' + search + '%' })
-      .orWhere('meeting.descript like :descript', {
-        descript: '%' + search + '%',
-      })
-      .skip(pageNo)
-      .take(pageSize)
-      .getMany();
-
-    if (meetingInfo.length === 0) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-        msg: '검색 결과가 없습니다.',
-      };
-    }
-
-    return {
-      status: 'SUCCESS',
-      code: 200,
-      data: meetingInfo,
-    };
-  }
-
-  // 내 모임 검색
-  async getMeetingByUserId(user_id: number) {
-    const meetingInfo = await this.connection.query(
-      `select * from meeting m left outer join meeting_user m_user 
-      on m_user.meeting_id = m.id where m_user.user_id = ?`,
-      [user_id],
+  ): Promise<SearchMeetingOutput> {
+    const meetingInfo = await this.meetingRepository.getMeetingByCategory(
+      category_id,
     );
 
     if (meetingInfo.length === 0) {
@@ -138,10 +52,67 @@ export class MeetingService {
       };
     }
 
+    const meetingData = await this.setJoinData(user_id, meetingInfo);
+
     return {
       status: 'SUCCESS',
       code: 200,
-      data: meetingInfo,
+      data: meetingData,
+    };
+  }
+
+  // 검색어로 검색 (모임명,한줄소개)
+  async getMeetingBySearch(
+    search: string,
+    user_id: number,
+  ): Promise<SearchMeetingOutput> {
+    const meetingInfo = await this.meetingRepository.getMeetingBySearch(search);
+
+    if (meetingInfo.length === 0) {
+      return {
+        status: 'SUCCESS',
+        code: 200,
+        msg: '검색 결과가 없습니다.',
+      };
+    }
+
+    const meetingData = await this.setJoinData(user_id, meetingInfo);
+
+    return {
+      status: 'SUCCESS',
+      code: 200,
+      data: meetingData,
+    };
+  }
+
+  async setJoinData(user_id: number, meetingInfo: Meeting[]) {
+    const myMeeting = await this.meetingRepository.getMeetingByUserId(user_id);
+
+    if (myMeeting) {
+      meetingInfo.forEach((element) => {
+        for (let i = 0; i < myMeeting.length; i++) {
+          if (element.id == myMeeting[i].meeting_id) {
+            element['join'] = false;
+            break;
+          }
+        }
+      });
+    }
+    return meetingInfo;
+  }
+
+  // 모임 입장
+  async getMeetingById(meeting_id: number) {
+    const member = await this.meetingUserRepository.getMeetingUserByMeetingId(
+      meeting_id,
+    );
+
+    const meetingData = await this.meetingRepository.getMeetingById(meeting_id);
+
+    return {
+      status: 'SUCCESS',
+      code: 200,
+      data: { meetingData, member },
     };
   }
 }
