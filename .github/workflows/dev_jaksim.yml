@@ -1,0 +1,55 @@
+name: JAKSIM API dev Build
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'dev_jaksimapi.*.*.*'
+jobs:
+  build:
+    name: Dev JAKSIM API Build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Create env file
+        working-directory: ./server
+        run: |
+          touch .env
+          cat << EOF >> .env
+          ${{ secrets.ENV }}
+
+      - name: Install dependencies & build files
+        working-directory: ./client
+        run: |
+          npm install
+          npm run build
+
+      - name: zip di~stributions
+        run: zip -r jaksim.zip ./client/dist ./server ./appspec.yml ./scripts
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./jaksim.zip s3://jaksim-app/public/
+
+      - name: deploy with AWS codeDeploy
+        run: aws deploy create-deployment
+          --application-name jaksim-deploy-codeDeploy-app
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name jaksim-deploy
+          --s3-location bucket=jaksim-app,bundleType=zip,key=public/jaksim.zip
