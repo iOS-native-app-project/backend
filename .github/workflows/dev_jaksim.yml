@@ -38,7 +38,7 @@ jobs:
 
       # tar파일 생성
       - name: Make tar file
-        run: tar -cpvzf ./$GITHUB_SHA.tgz ./dist ./scripts ./package.json ./appspec.yml ./ecosystem.config.js
+        run: tar -cpvzf ./$GITHUB_SHA.tgz ./dist ./scripts ./package.json ./package-lock.json ./appspec.yml ./ecosystem.config.js
         shell: bash
 
       - name: Configure AWS credentials
