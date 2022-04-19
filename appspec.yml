@@ -3,7 +3,13 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/build/
-    overwrite: yes
+    # overwrite: yes
+
+hooks:
+  AfterInstall:
+    - location: scripts/init.sh
+      timeout: 500
+      runas: ubuntu
 # permissions:
 #   - object: /home/ubuntu
 #     pattern: '**'

@@ -26,19 +26,19 @@ jobs:
           npm install
           npm run build
 
-      - name: Create env file
-        run: |
-          mkdir secret
-          cd secret
-          touch .env.production
-          cat << EOF >> .env.production
-          ${{ secrets.ENV }}
-          EOF
-          cd ..
+      # - name: Create env file
+      #   run: |
+      #     mkdir secret
+      #     cd secret
+      #     touch .env.production
+      #     cat << EOF >> .env.production
+      #     ${{ secrets.ENV }}
+      #     EOF
+      #     cd ..
 
       # tar파일 생성
       - name: Make tar file
-        run: tar -cpvzf ./$GITHUB_SHA.tgz *
+        run: tar -cpvzf ./$GITHUB_SHA.tgz ./dist ./scripts ./package.json ./appspec.yml ./ecosystem.config.js
         shell: bash
 
       - name: Configure AWS credentials
