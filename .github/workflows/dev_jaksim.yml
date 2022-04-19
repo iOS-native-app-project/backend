@@ -1,0 +1,55 @@
+name: JAKSIM API dev Build
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'dev_jaksimapi.*.*.*'
+jobs:
+  build:
+    name: Dev JAKSIM API Build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.14.0]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies & Build
+        run: |
+          npm install
+          npm run build
+
+      # - name: Create env file
+      #   run: |
+      #     mkdir secret
+      #     cd secret
+      #     touch .env.production
+      #     cat << EOF >> .env.production
+      #     ${{ secrets.ENV }}
+      #     EOF
+      #     cd ..
+
+      # tar파일 생성
+      - name: Make tar file
+        run: tar -cpvzf ./$GITHUB_SHA.tgz ./dist ./scripts ./package.json ./package-lock.json ./appspec.yml ./ecosystem.config.js
+        shell: bash
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tgz s3://jaksim-app/jaksim/$GITHUB_SHA.tgz
+
+      - name: deploy with AWS codeDeploy
+        run: aws deploy create-deployment --application-name jaksim-deploy-codeDeploy-app --file-exists-behavior OVERWRITE --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name jaksim-deploy --s3-location bucket=jaksim-app,bundleType=tgz,key=jaksim/$GITHUB_SHA.tgz
