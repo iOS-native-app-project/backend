@@ -22,17 +22,22 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Create env file
-        working-directory: ./server
         run: |
+          mkdir secret
+          cd secret
           touch .env.production
           cat << EOF >> .env.production
           ${{ secrets.ENV }}
+          EOF
+          cd ..
 
       - name: Install dependencies & build files
-        working-directory: ./client
         run: |
+          mkdir client
+          cd client
           npm install
           npm run build
+          cd ..
 
       - name: zip di~stributions
         run: zip -r jaksim.zip ./client/dist ./server ./appspec.yml ./scripts
