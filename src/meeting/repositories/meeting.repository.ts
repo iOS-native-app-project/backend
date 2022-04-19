@@ -41,8 +41,10 @@ export class MeetingRepository extends Repository<Meeting> {
         'meeting.descript',
         'meeting.limit',
         'meeting.category_id',
+        'meeting.goal_value',
+        'meeting.unit',
       ])
       .where('meeting.id = :id', { id: meeting_id })
-      .getMany();
+      .getOne();
   }
 }
