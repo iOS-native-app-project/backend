@@ -40,7 +40,7 @@ jobs:
           cd ..
 
       - name: zip di~stributions
-        run: zip -r jaksim.zip ./client/dist ./server ./appspec.yml ./scripts
+        run: zip -r jaksim.zip ./client/dist ./secret ./appspec.yml ./scripts
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
