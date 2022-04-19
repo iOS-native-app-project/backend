@@ -47,8 +47,8 @@ export class Meeting extends CoreEntity {
   })
   unit: string;
 
-  @Column('int', { name: 'value', comment: '상세달성수치' })
-  value: number;
+  @Column('int', { name: 'goal_value', comment: '상세달성수치' })
+  goal_value: number;
 
   @OneToMany(() => Category, (tbCategory) => tbCategory.id, {
     onDelete: 'RESTRICT',
