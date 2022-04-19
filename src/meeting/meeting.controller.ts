@@ -39,6 +39,7 @@ export class MeetingController {
     return await this.meetingService.getMeetingBySearch(search, user_id);
   }
 
+  @ApiOperation({ summary: '모임 입장' })
   @Get('/:meeting_id')
   async getMeetingById(@Param('meeting_id') meeting_id: number) {
     return await this.meetingService.getMeetingById(meeting_id);

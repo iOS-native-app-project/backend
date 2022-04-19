@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In } from 'typeorm';
+import { CategoryRepository } from 'src/category/repositories/category.repository';
 import { SearchMeetingOutput } from './dto/search-meeting.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
@@ -13,6 +13,8 @@ export class MeetingService {
     private meetingRepository: MeetingRepository,
     @InjectRepository(MeetingUserRepository)
     private meetingUserRepository: MeetingUserRepository,
+    @InjectRepository(CategoryRepository)
+    private categoryRepository: CategoryRepository,
   ) {}
 
   // 모임 첫 화면
@@ -106,13 +108,39 @@ export class MeetingService {
     const member = await this.meetingUserRepository.getMeetingUserByMeetingId(
       meeting_id,
     );
-
     const meetingData = await this.meetingRepository.getMeetingById(meeting_id);
+    const categoryName = await this.categoryRepository.getCategoryById(
+      meetingData.category_id,
+    );
 
     return {
       status: 'SUCCESS',
       code: 200,
-      data: { meetingData, member },
+      data: {
+        ...meetingData,
+        categoryName: categoryName.name,
+        totalMember: member,
+      },
+    };
+  }
+
+  // 모임 홈
+  // 모임 목표 (주기, 목표치, 단위, 카테고리)
+  // deadline이 있어야 목표 달성치 평균을 낼수있음
+  // 멤버 프로필사진, 닉네임, 달성율, 추천, 신고
+  async getMeetingHome(meeting_id: number) {
+    const meetingData = await this.meetingRepository.getMeetingById(meeting_id);
+    const categoryName = await this.categoryRepository.getCategoryById(
+      meetingData.category_id,
+    );
+
+    return {
+      status: 'SUCCESS',
+      code: 200,
+      data: {
+        ...meetingData,
+        categoryName: categoryName.name,
+      },
     };
   }
 }
