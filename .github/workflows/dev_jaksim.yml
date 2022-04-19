@@ -52,9 +52,4 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tgz s3://jaksim-app/jaksim/$GITHUB_SHA.tgz
 
       - name: deploy with AWS codeDeploy
-        run: aws deploy create-deployment 
-          --application-name jaksim-deploy-codeDeploy-app
-          --file-exists-behavior OVERWRITE 
-          --deployment-config-name CodeDeployDefault.OneAtATime 
-          --deployment-group-name jaksim-deploy
-          --s3-location bucket=jaksim-app,bundleType=tgz,key=jaksim/$GITHUB_SHA.tgz
+        run: aws deploy create-deployment --application-name jaksim-deploy-codeDeploy-app --file-exists-behavior OVERWRITE --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name jaksim-deploy --s3-location bucket=jaksim-app,bundleType=tgz,key=jaksim/$GITHUB_SHA.tgz
