@@ -12,14 +12,14 @@ import { MeetingService } from './meeting.service';
 export class MeetingController {
   constructor(private readonly meetingService: MeetingService) {}
   @ApiOperation({ summary: '모임 첫 화면 API' })
-  @Get('/user/:user_id')
+  @Get('')
   async getMeeting(@GetUser() user: User) {
     return await this.meetingService.getMeeting(user.id);
   }
 
   @ApiOperation({ summary: '카테고리 검색 API' })
   @ApiBody({ type: MeetingCategoryDto })
-  @Post('/category')
+  @Post('category')
   async getMeetingByCategory(
     @GetUser() user: User,
     @Body() category_id: MeetingCategoryDto,
@@ -31,7 +31,7 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: '검색어 검색 API' })
-  @Get('/:user_id/search/:search')
+  @Get('search/:search')
   async getMeetingBySearch(
     @GetUser() user: User,
     @Param('search') search: string,
@@ -40,19 +40,22 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: 'A301: 모임 입장 화면 API' })
-  @Get('/:meeting_id')
+  @Get(':meeting_id')
   async getMeetingById(@Param('meeting_id') meeting_id: number) {
     return await this.meetingService.getMeetingById(meeting_id);
   }
 
   @ApiOperation({ summary: 'A302: 모임 홈 화면 API' })
-  @Get('/home/:meeting_id')
+  @Get('home/:meeting_id')
   async getMeetingHome(@Param('meeting_id') meeting_id: number) {
     return await this.meetingService.getMeetingHome(meeting_id);
   }
 
-  @ApiOperation({ summary: 'A302: 유저 신고/추천 API' })
-  @Get('/:meeting_id/report/user/:user_id/type/:type')
+  @ApiOperation({
+    summary: 'A302: 유저 신고/추천 API',
+    description: 'member_id: 상대유저 / type 0: 추천, 1: 신고',
+  })
+  @Get(':meeting_id/report/user/:member_id/type/:type')
   async setUserforReport(
     @Param('meeting_id') meeting_id: number,
     @Param('member_id') member_id: number,
