@@ -1,7 +1,7 @@
 import { MeetingUser } from './meeting-user.entity';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
 
 @Entity({ name: 'meeting' })
@@ -58,12 +58,12 @@ export class Meeting extends CoreEntity {
   category: Category;
 
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meeting)
-  meetingUser: MeetingUser;
+  meetingUser: MeetingUser[];
 
-  // @ManyToOne(() => User, (tbUser) => tbUser.id, {
-  //   onDelete: 'RESTRICT',
-  //   onUpdate: 'RESTRICT',
-  // })
-  // @JoinColumn([{ name: 'owner_id' }])
-  // user: User;
+  @OneToMany(() => User, (tbUser) => tbUser.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([{ name: 'owner_id' }])
+  user: User;
 }

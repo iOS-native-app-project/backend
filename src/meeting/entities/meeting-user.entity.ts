@@ -1,6 +1,6 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
 import { Meeting } from './meeting.entity';
 
 @Entity({ name: 'meeting_user' })
@@ -24,10 +24,10 @@ export class MeetingUser extends CoreEntity {
   @JoinColumn([{ name: 'meeting_id' }])
   meeting: Meeting;
 
-  // @ManyToOne(() => User, (tbUser) => tbUser.id, {
-  //   onDelete: 'RESTRICT',
-  //   onUpdate: 'RESTRICT',
-  // })
-  // @JoinColumn([{ name: 'user_id' }])
-  // user: User;
+  @ManyToMany(() => User, (tbUser) => tbUser.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([{ name: 'user_id' }])
+  user: User;
 }
