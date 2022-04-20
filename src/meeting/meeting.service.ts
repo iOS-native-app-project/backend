@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryRepository } from 'src/category/repositories/category.repository';
+import { CoreOutput } from 'src/common/dto/core.dto';
 import { SearchMeetingOutput } from './dto/search-meeting.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
@@ -104,14 +105,15 @@ export class MeetingService {
   }
 
   // 모임 입장
-  async getMeetingById(meeting_id: number) {
-    const member = await this.meetingUserRepository.getMeetingUserByMeetingId(
-      meeting_id,
-    );
-    const meetingData = await this.meetingRepository.getMeetingById(meeting_id);
-    const categoryName = await this.categoryRepository.getCategoryById(
-      meetingData.category_id,
-    );
+  async getMeetingById(id: number) {
+    const meetingUser =
+      await this.meetingUserRepository.getMeetingUserByMeetingId(id);
+    console.log(meetingUser);
+
+    const meetingData = await this.meetingRepository.findOne({ id });
+    const categoryName = await this.categoryRepository.findOne({
+      id: meetingData.category_id,
+    });
 
     return {
       status: 'SUCCESS',
@@ -119,7 +121,7 @@ export class MeetingService {
       data: {
         ...meetingData,
         categoryName: categoryName.name,
-        totalMember: member,
+        totalMember: meetingUser[1],
       },
     };
   }
@@ -128,11 +130,14 @@ export class MeetingService {
   // 모임 목표 (주기, 목표치, 단위, 카테고리)
   // deadline이 있어야 목표 달성치 평균을 낼수있음
   // 멤버 프로필사진, 닉네임, 달성율, 추천, 신고
-  async getMeetingHome(meeting_id: number) {
-    const meetingData = await this.meetingRepository.getMeetingById(meeting_id);
-    const categoryName = await this.categoryRepository.getCategoryById(
-      meetingData.category_id,
-    );
+  async getMeetingHome(id: number) {
+    const meetingData = await this.meetingRepository.findOne({ id });
+    const categoryName = await this.categoryRepository.findOne({
+      id: meetingData.category_id,
+    });
+
+    const meetingUser =
+      await this.meetingUserRepository.getMeetingUserByMeetingId(id);
 
     return {
       status: 'SUCCESS',
@@ -141,6 +146,31 @@ export class MeetingService {
         ...meetingData,
         categoryName: categoryName.name,
       },
+    };
+  }
+
+  // 추천 신고 API
+  // 0: recommand, 1: report
+  async setUserforReport(
+    meeting_id: number,
+    member_id: number,
+    type: number,
+  ): Promise<CoreOutput> {
+    const user = await this.meetingUserRepository.setUserforReport(
+      meeting_id,
+      member_id,
+      type,
+    );
+
+    if (user) {
+      return {
+        status: 'SUCCESS',
+        code: 200,
+      };
+    }
+    return {
+      status: 'FAIL',
+      code: 500,
     };
   }
 }

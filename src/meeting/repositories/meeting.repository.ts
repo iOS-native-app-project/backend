@@ -33,18 +33,4 @@ export class MeetingRepository extends Repository<Meeting> {
       [user_id],
     );
   }
-
-  async getMeetingById(meeting_id: number) {
-    return this.createQueryBuilder('meeting')
-      .select([
-        'meeting.name',
-        'meeting.descript',
-        'meeting.limit',
-        'meeting.category_id',
-        'meeting.goal_value',
-        'meeting.unit',
-      ])
-      .where('meeting.id = :id', { id: meeting_id })
-      .getOne();
-  }
 }
