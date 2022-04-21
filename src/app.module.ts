@@ -7,6 +7,8 @@ import Joi from 'joi';
 import ormconfig from './ormconfig';
 import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { MeetingModule } from './meeting/meeting.module';
+import { UploadModule } from './upload/upload.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -40,7 +42,8 @@ import { MeetingModule } from './meeting/meeting.module';
     AuthModule,
     UserModule,
     MeetingModule,
-    // UploadModule,
+    UploadModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [],
