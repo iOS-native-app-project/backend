@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { Record } from '../../record/entities/record.entity';
 
 @Entity({ name: 'user' })
 export class User extends CoreEntityAndDelete {
@@ -44,4 +45,10 @@ export class User extends CoreEntityAndDelete {
     select: false,
   })
   refreshToken: string;
+
+  @OneToMany(() => Record, (tbRecord) => tbRecord.user, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  records: Record[];
 }

@@ -30,6 +30,9 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('JakSim API ')
     .addTag('Auth')
+    .addTag('User')
+    .addTag('Meeting')
+    .addTag('Record')
     .addBearerAuth(
       {
         type: 'http',
