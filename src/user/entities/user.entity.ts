@@ -3,7 +3,7 @@ import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'user' })
 export class User extends CoreEntityAndDelete {
   @ApiProperty({
     example: 'KAKAO',
