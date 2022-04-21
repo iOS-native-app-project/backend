@@ -173,4 +173,12 @@ export class MeetingService {
       code: 500,
     };
   }
+
+  // 멤버 기록 보기
+  async getMemberRecord(meeting_id: number, member_id: number) {
+    return {
+      status: 'SUCCESS',
+      code: 200,
+    };
+  }
 }

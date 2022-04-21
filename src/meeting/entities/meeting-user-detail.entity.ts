@@ -1,6 +1,6 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { MeetingUser } from '../../meeting/entities/meeting-user.entity';
+import { MeetingUser } from './meeting-user.entity';
 
 @Entity({ name: 'meeting_user_detail' })
 export class MeetingUserDetail extends CoreEntity {

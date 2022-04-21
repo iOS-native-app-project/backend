@@ -67,4 +67,13 @@ export class MeetingController {
       type,
     );
   }
+
+  @ApiOperation({ summary: 'A304: 멤버 기록 API' })
+  @Get('category')
+  async getMemberRecord(
+    @Param('meeting_id') meeting_id: number,
+    @Param('member_id') member_id: number,
+  ) {
+    return await this.meetingService.getMemberRecord(meeting_id, member_id);
+  }
 }

@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import dotenv from 'dotenv';
 import { Category } from './category/entities/category.entity';
-import { MeetingUserDetail } from './meeting-detail/entities/meeting-user-detail.entity';
+import { MeetingUserDetail } from './meeting/entities/meeting-user-detail.entity';
 import { MeetingUser } from './meeting/entities/meeting-user.entity';
 import { Meeting } from './meeting/entities/meeting.entity';
 import { User } from './user/entities/user.entity';
