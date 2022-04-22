@@ -1,9 +1,7 @@
-import { MeetingUser } from './meeting-user.entity';
-import { CoreEntity } from 'src/common/entity/core.entity';
-import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
-import { Category } from '../../category/entities/category.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { CoreEntity } from 'src/common/entity/core.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { MeetingUser } from './meeting-user.entity';
 
 @Entity({ name: 'meeting' })
 export class Meeting extends CoreEntity {
@@ -93,30 +91,20 @@ export class Meeting extends CoreEntity {
     example: '10',
     description: '목표달성수치',
   })
-  @Column('int', { name: 'target_amount', comment: '목표달성수치' })
+  @Column('int', {
+    name: 'target_amount',
+    comment: '목표달성수치',
+    default: 10,
+  })
   target_amount: number;
 
   @ApiProperty({
     example: '1',
     description: '목표 단위 (회, km, m, 분, 시간)',
   })
-  @Column('int', { name: 'target_unit', comment: '목표단위' })
+  @Column('int', { name: 'target_unit', comment: '목표단위', default: 1 })
   target_unit: number;
 
-  @OneToMany(() => Category, (tbCategory) => tbCategory.id, {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  })
-  @JoinColumn([{ name: 'category_id' }])
-  category: Category;
-
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meeting)
-  meetingUser: MeetingUser[];
-
-  @OneToMany(() => User, (tbUser) => tbUser.id, {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  })
-  @JoinColumn([{ name: 'owner_id' }])
-  user: User;
+  meetingUsers: MeetingUser[];
 }

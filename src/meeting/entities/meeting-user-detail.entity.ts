@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CoreEntity } from 'src/common/entity/core.entity';
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { MeetingUser } from './meeting-user.entity';
 
 @Entity({ name: 'meeting_user_detail' })
@@ -44,7 +44,7 @@ export class MeetingUserDetail extends CoreEntity {
   @Column('varchar', { name: 'descript', length: 200, nullable: true })
   descript: string;
 
-  @OneToOne(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.id, {
+  @ManyToOne(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.id, {
     onDelete: 'RESTRICT',
     onUpdate: 'RESTRICT',
   })
