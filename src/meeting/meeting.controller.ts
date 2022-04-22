@@ -11,13 +11,13 @@ import { MeetingService } from './meeting.service';
 @UseGuards(JwtAuthGuard)
 export class MeetingController {
   constructor(private readonly meetingService: MeetingService) {}
-  @ApiOperation({ summary: '모임 첫 화면 API' })
+  @ApiOperation({ summary: 'A300: 모임 첫 화면 API' })
   @Get('')
   async getMeeting(@GetUser() user: User) {
     return await this.meetingService.getMeeting(user.id);
   }
 
-  @ApiOperation({ summary: '카테고리 검색 API' })
+  @ApiOperation({ summary: 'A300: 카테고리 검색 API' })
   @ApiBody({ type: MeetingCategoryDto })
   @Post('category')
   async getMeetingByCategory(
@@ -30,7 +30,7 @@ export class MeetingController {
     );
   }
 
-  @ApiOperation({ summary: '검색어 검색 API' })
+  @ApiOperation({ summary: 'A300: 검색어 검색 API' })
   @Get('search/:search')
   async getMeetingBySearch(
     @GetUser() user: User,
@@ -55,7 +55,7 @@ export class MeetingController {
     summary: 'A302: 유저 신고/추천 API',
     description: 'member_id: 상대유저 / type 0: 추천, 1: 신고',
   })
-  @Get(':meeting_id/report/user/:member_id/type/:type')
+  @Get(':meeting_id/report/member/:member_id/type/:type')
   async setUserforReport(
     @Param('meeting_id') meeting_id: number,
     @Param('member_id') member_id: number,

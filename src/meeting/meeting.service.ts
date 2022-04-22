@@ -95,7 +95,7 @@ export class MeetingService {
       meetingInfo.forEach((element) => {
         for (let i = 0; i < myMeeting.length; i++) {
           if (element.id == myMeeting[i].meeting_id) {
-            element['join'] = false;
+            element['join'] = true;
             break;
           }
         }
