@@ -108,18 +108,17 @@ export class MeetingService {
   async getMeetingById(id: number) {
     const meetingUser =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
-    console.log(meetingUser);
 
-    const meetingData = await this.meetingRepository.findOne({ id });
+    const meetingData = await this.meetingRepository.getMeeting(id);
     const categoryName = await this.categoryRepository.findOne({
-      id: meetingData.category_id,
+      id: meetingData[0].category_id,
     });
 
     return {
       status: 'SUCCESS',
       code: 200,
       data: {
-        ...meetingData,
+        ...meetingData[0],
         categoryName: categoryName.name,
         totalMember: meetingUser[1],
       },
