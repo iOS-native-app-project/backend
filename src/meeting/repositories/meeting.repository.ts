@@ -13,7 +13,8 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async getMeeting(id: number) {
     return this.connection.query(
-      `select meeting.*, category.name as category_name, user.nickname, user.image_path from meeting 
+      `select meeting.*, category.name as categoryName, user.nickname as ownerName, 
+        user.image_path as userImage from meeting 
 	      join user on user.id = meeting.owner_id 
 		    join category on category.id = meeting.category_id
 			  where meeting.id = ?`,

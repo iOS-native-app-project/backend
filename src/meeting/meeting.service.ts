@@ -106,44 +106,36 @@ export class MeetingService {
 
   // 모임 입장
   async getMeetingById(id: number) {
-    const meetingUser =
-      await this.meetingUserRepository.getMeetingUserByMeetingId(id);
-
-    const meetingData = await this.meetingRepository.getMeeting(id);
-    const categoryName = await this.categoryRepository.findOne({
-      id: meetingData[0].category_id,
+    const meetingUser = await this.meetingUserRepository.count({
+      meeting_id: id,
     });
+    const meetingData = await this.meetingRepository.getMeeting(id);
 
     return {
       status: 'SUCCESS',
       code: 200,
       data: {
         ...meetingData[0],
-        categoryName: categoryName.name,
-        totalMember: meetingUser[1],
+        totalMember: meetingUser,
       },
     };
   }
 
   // 모임 홈
-  // 모임 목표 (주기, 목표치, 단위, 카테고리)
-  // deadline이 있어야 목표 달성치 평균을 낼수있음
+  // todo : deadline이 있어야 목표 달성치 평균을 낼수있음
   // 멤버 프로필사진, 닉네임, 달성율, 추천, 신고
   async getMeetingHome(id: number) {
-    const meetingData = await this.meetingRepository.findOne({ id });
-    const categoryName = await this.categoryRepository.findOne({
-      id: meetingData.category_id,
-    });
+    const meetingData = await this.meetingRepository.getMeeting(id);
 
     const meetingUser =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
+    console.log(meetingUser);
 
     return {
       status: 'SUCCESS',
       code: 200,
       data: {
-        ...meetingData,
-        categoryName: categoryName.name,
+        ...meetingData[0],
       },
     };
   }
