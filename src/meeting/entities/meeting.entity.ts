@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Category } from 'src/category/entities/category.entity';
 import { CoreEntity } from 'src/common/entity/core.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { MeetingUser } from './meeting-user.entity';
 
 @Entity({ name: 'meeting' })
@@ -105,6 +107,20 @@ export class Meeting extends CoreEntity {
   @Column('int', { name: 'target_unit', comment: '목표단위', default: 1 })
   target_unit: number;
 
-  @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meeting)
+  @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meetings)
   meetingUsers: MeetingUser[];
+
+  @ManyToOne(() => Category, (tbCategory) => tbCategory.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([{ name: 'category_id' }])
+  category: Category;
+
+  @ManyToOne(() => User, (tbUser) => tbUser.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([{ name: 'owner_id' }])
+  users: User;
 }
