@@ -1,23 +1,28 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserRepository } from 'src/user/repositories/user.repository';
-import { EntityRepository, Repository } from 'typeorm';
+import { InjectConnection } from '@nestjs/typeorm';
+import { Connection, EntityRepository, Repository } from 'typeorm';
 import { MeetingUser } from '../entities/meeting-user.entity';
 
 @EntityRepository(MeetingUser)
 export class MeetingUserRepository extends Repository<MeetingUser> {
   constructor(
-    @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
+    @InjectConnection()
+    private connection: Connection,
   ) {
     super();
   }
 
   async getMeetingUserByMeetingId(id: number) {
-    return this.createQueryBuilder('meeting_user')
-      .where('meeting_user.meeting_id = :meeting_id', {
-        meeting_id: id,
-      })
-      .getManyAndCount();
+    return await this.createQueryBuilder('meeting_user')
+      .select([
+        'user.id as user_id',
+        'user.nickname',
+        'user.image_path',
+        'meeting_user.recommand',
+        'meeting_user.report',
+      ])
+      .leftJoinAndSelect('meeting_user.users', 'user')
+      .where('meeting_user.meeting_id = :id', { id })
+      .getOne();
   }
 
   async setUserforReport(meeting_id: number, member_id: number, type: number) {

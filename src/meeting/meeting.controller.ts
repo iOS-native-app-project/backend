@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { User } from 'src/user/entities/user.entity';
+import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { MeetingCategoryDto } from './dto/search-meeting.dto';
 import { MeetingService } from './meeting.service';
 
@@ -69,11 +70,21 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: 'A304: 멤버 기록 API' })
-  @Get('category')
+  @Get(':meeting_id/member/:member_id')
   async getMemberRecord(
     @Param('meeting_id') meeting_id: number,
     @Param('member_id') member_id: number,
   ) {
     return await this.meetingService.getMemberRecord(meeting_id, member_id);
+  }
+
+  @ApiOperation({ summary: 'A303: 모임 개설 API' })
+  @ApiBody({ type: CreateMeetingDto })
+  @Post('')
+  async createMeeting(
+    @GetUser() user: User,
+    @Body() createMeetingDto: CreateMeetingDto,
+  ) {
+    return await this.meetingService.createMeeting(user.id, createMeetingDto);
   }
 }

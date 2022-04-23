@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryRepository } from 'src/category/repositories/category.repository';
 import { CoreOutput } from 'src/common/dto/core.dto';
+import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { SearchMeetingOutput } from './dto/search-meeting.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
@@ -135,7 +136,7 @@ export class MeetingService {
       status: 'SUCCESS',
       code: 200,
       data: {
-        ...meetingData[0],
+        meetingData: meetingData[0],
       },
     };
   }
@@ -171,5 +172,13 @@ export class MeetingService {
       status: 'SUCCESS',
       code: 200,
     };
+  }
+
+  // 모임 개설
+  async createMeeting(user_id: number, createMeetingDto: CreateMeetingDto) {
+    return await this.meetingRepository.createMeeting(
+      user_id,
+      createMeetingDto,
+    );
   }
 }

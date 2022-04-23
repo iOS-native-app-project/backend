@@ -1,5 +1,6 @@
 import { InjectConnection } from '@nestjs/typeorm';
 import { Connection, EntityRepository, Repository } from 'typeorm';
+import { CreateMeetingDto } from '../dto/create-meeting.dto';
 import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
@@ -43,5 +44,13 @@ export class MeetingRepository extends Repository<Meeting> {
       on m_user.meeting_id = m.id where m_user.user_id = ?`,
       [user_id],
     );
+  }
+
+  async createMeeting(user_id: number, createMeetingDto: CreateMeetingDto) {
+    const meeting = this.create({
+      ...createMeetingDto,
+      owner_id: user_id,
+    });
+    return this.save(meeting);
   }
 }
