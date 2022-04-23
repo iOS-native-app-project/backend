@@ -87,4 +87,13 @@ export class MeetingController {
   ) {
     return await this.meetingService.createMeeting(user.id, createMeetingDto);
   }
+
+  @ApiOperation({ summary: '모임 참여 API' })
+  @Get(':meeting_id/join')
+  async joinMeeting(
+    @GetUser() user: User,
+    @Param('meeting_id') meeting_id: number,
+  ) {
+    return await this.meetingService.joinMeeting(user.id, meeting_id);
+  }
 }

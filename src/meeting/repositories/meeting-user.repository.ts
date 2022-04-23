@@ -40,4 +40,9 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       return false;
     }
   }
+
+  async joinMeeting(user_id: number, meeting_id: number) {
+    const meetingUser = this.create({ meeting_id, user_id });
+    return this.save(meetingUser);
+  }
 }

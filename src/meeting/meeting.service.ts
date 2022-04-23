@@ -15,8 +15,6 @@ export class MeetingService {
     private meetingRepository: MeetingRepository,
     @InjectRepository(MeetingUserRepository)
     private meetingUserRepository: MeetingUserRepository,
-    @InjectRepository(CategoryRepository)
-    private categoryRepository: CategoryRepository,
   ) {}
 
   // 모임 첫 화면
@@ -180,5 +178,10 @@ export class MeetingService {
       user_id,
       createMeetingDto,
     );
+  }
+
+  // 모임 참여
+  async joinMeeting(user_id: number, meeting_id: number) {
+    return await this.meetingUserRepository.joinMeeting(user_id, meeting_id);
   }
 }
