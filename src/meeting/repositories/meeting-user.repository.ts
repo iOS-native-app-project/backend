@@ -25,6 +25,13 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       .getOne();
   }
 
+  async getMeetingByUserId(user_id: number) {
+    return await this.createQueryBuilder('meeting_user')
+      .leftJoinAndSelect('meeting_user.meetings', 'meeting')
+      .where('meeting_user.user_id = :user_id', { user_id })
+      .getMany();
+  }
+
   async setUserforReport(meeting_id: number, member_id: number, type: number) {
     try {
       const user = await this.createQueryBuilder('meeting_user')

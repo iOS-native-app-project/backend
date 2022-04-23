@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryRepository } from 'src/category/repositories/category.repository';
 import { CoreOutput } from 'src/common/dto/core.dto';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { SearchMeetingOutput } from './dto/search-meeting.dto';
@@ -88,7 +87,9 @@ export class MeetingService {
   }
 
   async setJoinData(user_id: number, meetingInfo: Meeting[]) {
-    const myMeeting = await this.meetingRepository.getMeetingByUserId(user_id);
+    const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
+      user_id,
+    );
 
     if (myMeeting) {
       meetingInfo.forEach((element) => {
@@ -114,7 +115,7 @@ export class MeetingService {
       status: 'SUCCESS',
       code: 200,
       data: {
-        ...meetingData[0],
+        ...meetingData,
         totalMember: meetingUser,
       },
     };
@@ -134,7 +135,7 @@ export class MeetingService {
       status: 'SUCCESS',
       code: 200,
       data: {
-        meetingData: meetingData[0],
+        meetingData: meetingData,
       },
     };
   }

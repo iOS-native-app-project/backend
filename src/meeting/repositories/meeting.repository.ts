@@ -13,14 +13,18 @@ export class MeetingRepository extends Repository<Meeting> {
   }
 
   async getMeeting(id: number) {
-    return this.connection.query(
-      `select meeting.*, category.name as categoryName, user.nickname as ownerName, 
-        user.image_path as userImage from meeting 
-	      join user on user.id = meeting.owner_id 
-		    join category on category.id = meeting.category_id
-			  where meeting.id = ?`,
-      [id],
-    );
+    return this.createQueryBuilder('meeting')
+      .select([
+        'meeting.name, meeting.image, meeting.descript, meeting.limit',
+        'meeting.cycle, meeting.unit, meeting.target_amount, meeting.target_unit',
+        'category.name as categoryName',
+        'user.nickname as ownerName',
+        'user.image_path as userImage',
+      ])
+      .leftJoinAndSelect('meeting.users', 'user')
+      .leftJoinAndSelect('meeting.category', 'category')
+      .where('meeting.id = :id', { id })
+      .getOne();
   }
 
   async getMeetingBySearch(search: string) {
@@ -38,14 +42,7 @@ export class MeetingRepository extends Repository<Meeting> {
       .getMany();
   }
 
-  async getMeetingByUserId(user_id: number) {
-    return this.connection.query(
-      `select * from meeting m left outer join meeting_user m_user 
-      on m_user.meeting_id = m.id where m_user.user_id = ?`,
-      [user_id],
-    );
-  }
-
+  // todo : meeting_user에도 create
   async createMeeting(user_id: number, createMeetingDto: CreateMeetingDto) {
     const meeting = this.create({
       ...createMeetingDto,
