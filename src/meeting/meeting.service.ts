@@ -185,10 +185,7 @@ export class MeetingService {
       user_id,
       createMeetingDto,
     );
-    const meetingUser = await this.meetingUserRepository.joinMeeting(
-      user_id,
-      meeting.id,
-    );
+    const meetingUser = await this.joinMeeting(user_id, meeting.id);
 
     if (meetingUser) {
       return {
