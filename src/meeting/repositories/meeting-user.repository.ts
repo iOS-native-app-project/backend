@@ -24,11 +24,11 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       .getMany();
   }
 
-  async setUserforReport(meeting_id: number, member_id: number, type: number) {
+  async setUserforReport(meeting_id: number, user_id: number, type: number) {
     try {
       const user = await this.createQueryBuilder('meeting_user')
         .where('meeting_user.meeting_id = :meeting_id', { meeting_id })
-        .andWhere('meeting_user.user_id = :member_id', { member_id })
+        .andWhere('meeting_user.user_id = :member_id', { user_id })
         .getOne();
 
       if (type && type == 1) {

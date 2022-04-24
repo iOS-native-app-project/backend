@@ -145,27 +145,12 @@ export class MeetingService {
 
   // 추천 신고 API
   // 0: recommand, 1: report
-  async setUserforReport(
-    meeting_id: number,
-    member_id: number,
-    type: number,
-  ): Promise<CoreOutput> {
-    const user = await this.meetingUserRepository.setUserforReport(
+  async setUserforReport(meeting_id: number, user_id: number, type: number) {
+    return await this.meetingUserRepository.setUserforReport(
       meeting_id,
-      member_id,
+      user_id,
       type,
     );
-
-    if (user) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-      };
-    }
-    return {
-      status: 'FAIL',
-      code: 500,
-    };
   }
 
   // 멤버 기록 보기
