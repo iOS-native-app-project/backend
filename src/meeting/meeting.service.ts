@@ -5,7 +5,7 @@ import {
   CreateMeetingDto,
   CreateMeetingOutput,
 } from './dto/create-meeting.dto';
-import { SearchMeetingOutput } from './dto/search-meeting.dto';
+import { SearchMeetingOutput } from './dto/meeting.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';

@@ -4,7 +4,7 @@ import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { User } from 'src/user/entities/user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { MeetingCategoryDto } from './dto/search-meeting.dto';
+import { MeetingCategoryDto, ReportUserDto } from './dto/meeting.dto';
 import { MeetingService } from './meeting.service';
 
 @ApiTags('Meeting')
@@ -55,18 +55,18 @@ export class MeetingController {
 
   @ApiOperation({
     summary: 'A302: 유저 신고/추천 API',
-    description: 'member_id: 상대유저 / type 0: 추천, 1: 신고',
+    description: 'user_id: 상대유저 / type 0: 추천, 1: 신고',
   })
-  @Get(':meeting_id/report/member/:member_id/type/:type')
+  @ApiBody({ type: ReportUserDto })
+  @Post(':meeting_id/report')
   async setUserforReport(
     @Param('meeting_id') meeting_id: number,
-    @Param('member_id') member_id: number,
-    @Param('type') type: number,
+    @Body() reportUserDto: ReportUserDto,
   ) {
     return await this.meetingService.setUserforReport(
       meeting_id,
-      member_id,
-      type,
+      reportUserDto.user_id,
+      reportUserDto.type,
     );
   }
 
