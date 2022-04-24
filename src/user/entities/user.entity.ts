@@ -50,6 +50,6 @@ export class User extends CoreEntityAndDelete {
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.users)
   meetingUsers: MeetingUser[];
 
-  @OneToMany(() => Meeting, (tbMeeting) => tbMeeting.category)
+  @OneToMany(() => Meeting, (tbMeeting) => tbMeeting.users)
   meetings: Meeting[];
 }
