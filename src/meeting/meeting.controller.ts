@@ -12,6 +12,7 @@ import { MeetingService } from './meeting.service';
 @UseGuards(JwtAuthGuard)
 export class MeetingController {
   constructor(private readonly meetingService: MeetingService) {}
+
   @ApiOperation({ summary: 'A300: 모임 첫 화면 API' })
   @Get('')
   async getMeeting(@GetUser() user: User) {
