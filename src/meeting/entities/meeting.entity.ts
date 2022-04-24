@@ -91,21 +91,14 @@ export class Meeting extends CoreEntity {
 
   @ApiProperty({
     example: '10',
-    description: '목표달성수치',
+    description: '목표달성수치 (거리:m 단위, 시간:분 단위)',
   })
   @Column('int', {
     name: 'target_amount',
-    comment: '목표달성수치',
+    comment: '목표달성수치 (거리:m 단위, 시간:분 단위)',
     default: 10,
   })
   target_amount: number;
-
-  @ApiProperty({
-    example: '1',
-    description: '목표 단위 (회, km, m, 분, 시간)',
-  })
-  @Column('int', { name: 'target_unit', comment: '목표단위', default: 1 })
-  target_unit: number;
 
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meetings)
   meetingUsers: MeetingUser[];
