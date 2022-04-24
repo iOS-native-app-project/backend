@@ -1,17 +1,9 @@
-import { InjectConnection } from '@nestjs/typeorm';
-import { Connection, EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { CreateMeetingDto } from '../dto/create-meeting.dto';
 import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
 export class MeetingRepository extends Repository<Meeting> {
-  constructor(
-    @InjectConnection()
-    private connection: Connection,
-  ) {
-    super();
-  }
-
   async getMeeting(id: number) {
     return this.createQueryBuilder('meeting')
       .select([
@@ -42,7 +34,6 @@ export class MeetingRepository extends Repository<Meeting> {
       .getMany();
   }
 
-  // todo : meeting_user에도 create
   async createMeeting(user_id: number, createMeetingDto: CreateMeetingDto) {
     const meeting = this.create({
       ...createMeetingDto,

@@ -1,15 +1,14 @@
-import { PickType } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/swagger';
+import { CoreOutput } from 'src/common/dto/core.dto';
 import { Meeting } from '../entities/meeting.entity';
 
-export class CreateMeetingDto extends PickType(Meeting, [
-  'name',
-  'image',
-  'category_id',
-  'descript',
-  'limit',
-  'password',
-  'cycle',
-  'unit',
-  'target_amount',
-  'target_unit',
+export class CreateMeetingDto extends OmitType(Meeting, [
+  'id',
+  'createdAt',
+  'updatedAt',
+  'owner_id',
 ]) {}
+
+export class CreateMeetingOutput extends CoreOutput {
+  data?: Meeting;
+}

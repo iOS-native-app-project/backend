@@ -67,8 +67,8 @@ export class Meeting extends CoreEntity {
   password: string;
 
   @ApiProperty({
-    example: '0:하루, 1:일주일, 2:한달',
-    description: '목표 주기',
+    example: '0',
+    description: '목표 주기 (0:하루, 1:일주일, 2:한달)',
   })
   @Column('int', {
     name: 'cycle',
@@ -78,8 +78,8 @@ export class Meeting extends CoreEntity {
   cycle: number;
 
   @ApiProperty({
-    example: '횟수, 거리, 시간',
-    description: '목표 단위',
+    example: '횟수',
+    description: '목표 단위 (횟수, 거리, 시간)',
   })
   @Column('varchar', {
     name: 'unit',

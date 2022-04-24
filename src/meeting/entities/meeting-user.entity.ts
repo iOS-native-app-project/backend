@@ -12,10 +12,10 @@ export class MeetingUser extends CoreEntity {
   @Column('int', { name: 'user_id' })
   user_id: number;
 
-  @Column('int', { name: 'recommand', comment: '추천수' })
+  @Column('int', { name: 'recommand', comment: '추천수', default: 0 })
   recommand: number;
 
-  @Column('int', { name: 'report', comment: '신고수' })
+  @Column('int', { name: 'report', comment: '신고수', default: 0 })
   report: number;
 
   @ManyToOne(() => Meeting, (tbMeeting) => tbMeeting.id, {

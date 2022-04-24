@@ -1,16 +1,8 @@
-import { InjectConnection } from '@nestjs/typeorm';
-import { Connection, EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { MeetingUser } from '../entities/meeting-user.entity';
 
 @EntityRepository(MeetingUser)
 export class MeetingUserRepository extends Repository<MeetingUser> {
-  constructor(
-    @InjectConnection()
-    private connection: Connection,
-  ) {
-    super();
-  }
-
   async getMeetingUserByMeetingId(id: number) {
     return await this.createQueryBuilder('meeting_user')
       .select([
