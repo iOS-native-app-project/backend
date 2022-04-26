@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber } from 'class-validator';
-import { CoreOutput } from 'src/common/dto/core.dto';
-import { Meeting } from '../entities/meeting.entity';
-
-export class SearchMeetingOutput extends CoreOutput {
-  data?: Array<Meeting>;
-}
 
 export class MeetingCategoryDto {
   @IsArray()
