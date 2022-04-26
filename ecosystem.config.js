@@ -8,6 +8,9 @@ module.exports = {
       watch_options: {
         followSymlinks: false,
       },
+      env: {
+        NODE_ENV: 'production',
+      },
     },
   ],
 };

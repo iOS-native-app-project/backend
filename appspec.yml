@@ -1,0 +1,25 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu/build/
+    # overwrite: yes
+
+hooks:
+  AfterInstall:
+    - location: scripts/init.sh
+      timeout: 500
+      runas: ubuntu
+# permissions:
+#   - object: /home/ubuntu
+#     pattern: '**'
+#     owner: ubuntu
+#     group: ubuntu
+
+# hooks:
+#   BeforeInstall:
+#     - location: scripts/before_deploy.sh
+#       runas: ubuntu
+#   AfterInstall:
+#     - location: scripts/after_deploy.sh
+#       runas: ubuntu

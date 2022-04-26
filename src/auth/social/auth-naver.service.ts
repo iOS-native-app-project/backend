@@ -1,12 +1,12 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { catchError, pluck } from 'rxjs';
+import { catchError, map, pluck } from 'rxjs';
 
 @Injectable()
 export class AuthNaverService {
   constructor(private httpService: HttpService) {}
 
-  getEmail(access_token: string): Promise<{ email: string }> {
+  getUid(access_token: string): Promise<{ uid: string }> {
     const headers = {
       Authorization: `bearer ${access_token}`,
     };
@@ -16,7 +16,8 @@ export class AuthNaverService {
         headers,
       })
       .pipe(
-        pluck('data', 'response'),
+        pluck('data', 'response', 'id'),
+        map((v) => ({ uid: 'naver:' + v })),
         catchError(() => {
           throw new UnauthorizedException('Tokens do not match.');
         }),
