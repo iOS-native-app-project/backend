@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryRepository } from 'src/category/repositories/category.repository';
-import { CoreOutput } from 'src/common/dto/core.dto';
-import { SearchMeetingOutput } from './dto/search-meeting.dto';
+import { UpdateResult } from 'typeorm';
+import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';
@@ -14,88 +14,56 @@ export class MeetingService {
     private meetingRepository: MeetingRepository,
     @InjectRepository(MeetingUserRepository)
     private meetingUserRepository: MeetingUserRepository,
-    @InjectRepository(CategoryRepository)
-    private categoryRepository: CategoryRepository,
   ) {}
 
   // 모임 첫 화면
-  async getMeeting(user_id: number): Promise<SearchMeetingOutput> {
+  async getMeeting(user_id: number): Promise<Meeting[] | string> {
     const meetingInfo = await this.meetingRepository.find();
 
     if (meetingInfo.length === 0) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-        msg: '검색 결과가 없습니다.',
-      };
+      return '검색 결과가 없습니다.';
     }
-    const meetingData = await this.setJoinData(user_id, meetingInfo);
-
-    return {
-      status: 'SUCCESS',
-      code: 200,
-      data: meetingData,
-    };
+    return await this.setJoinData(user_id, meetingInfo);
   }
 
   // 카테고리 필터 검색
   async getMeetingByCategory(
     category_id: number[],
     user_id: number,
-  ): Promise<SearchMeetingOutput> {
+  ): Promise<Meeting[] | string> {
     const meetingInfo = await this.meetingRepository.getMeetingByCategory(
       category_id,
     );
 
     if (meetingInfo.length === 0) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-        msg: '검색 결과가 없습니다.',
-      };
+      return '검색 결과가 없습니다.';
     }
-
-    const meetingData = await this.setJoinData(user_id, meetingInfo);
-
-    return {
-      status: 'SUCCESS',
-      code: 200,
-      data: meetingData,
-    };
+    return await this.setJoinData(user_id, meetingInfo);
   }
 
   // 검색어로 검색 (모임명,한줄소개)
   async getMeetingBySearch(
     search: string,
     user_id: number,
-  ): Promise<SearchMeetingOutput> {
+  ): Promise<Meeting[] | string> {
     const meetingInfo = await this.meetingRepository.getMeetingBySearch(search);
 
     if (meetingInfo.length === 0) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-        msg: '검색 결과가 없습니다.',
-      };
+      return '검색 결과가 없습니다.';
     }
-
-    const meetingData = await this.setJoinData(user_id, meetingInfo);
-
-    return {
-      status: 'SUCCESS',
-      code: 200,
-      data: meetingData,
-    };
+    return await this.setJoinData(user_id, meetingInfo);
   }
 
   async setJoinData(user_id: number, meetingInfo: Meeting[]) {
-    const myMeeting = await this.meetingRepository.getMeetingByUserId(user_id);
+    const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
+      user_id,
+    );
 
     if (myMeeting) {
       meetingInfo.forEach((element) => {
         for (let i = 0; i < myMeeting.length; i++) {
           if (element.id == myMeeting[i].meeting_id) {
-            element['join'] = false;
+            element['join'] = true;
             break;
           }
         }
@@ -106,46 +74,29 @@ export class MeetingService {
 
   // 모임 입장
   async getMeetingById(id: number) {
-    const meetingUser =
-      await this.meetingUserRepository.getMeetingUserByMeetingId(id);
-    console.log(meetingUser);
-
-    const meetingData = await this.meetingRepository.findOne({ id });
-    const categoryName = await this.categoryRepository.findOne({
-      id: meetingData.category_id,
+    const meetingUser = await this.meetingUserRepository.count({
+      meeting_id: id,
     });
+    const meetingData = await this.meetingRepository.getMeeting(id);
 
     return {
-      status: 'SUCCESS',
-      code: 200,
-      data: {
-        ...meetingData,
-        categoryName: categoryName.name,
-        totalMember: meetingUser[1],
-      },
+      ...meetingData,
+      totalMember: meetingUser,
     };
   }
 
   // 모임 홈
-  // 모임 목표 (주기, 목표치, 단위, 카테고리)
-  // deadline이 있어야 목표 달성치 평균을 낼수있음
+  // todo : deadline이 있어야 목표 달성치 평균을 낼수있음
   // 멤버 프로필사진, 닉네임, 달성율, 추천, 신고
   async getMeetingHome(id: number) {
-    const meetingData = await this.meetingRepository.findOne({ id });
-    const categoryName = await this.categoryRepository.findOne({
-      id: meetingData.category_id,
-    });
+    const meetingData = await this.meetingRepository.getMeeting(id);
 
     const meetingUser =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
+    console.log(meetingUser);
 
     return {
-      status: 'SUCCESS',
-      code: 200,
-      data: {
-        ...meetingData,
-        categoryName: categoryName.name,
-      },
+      meetingData: meetingData,
     };
   }
 
@@ -153,25 +104,14 @@ export class MeetingService {
   // 0: recommand, 1: report
   async setUserforReport(
     meeting_id: number,
-    member_id: number,
+    user_id: number,
     type: number,
-  ): Promise<CoreOutput> {
-    const user = await this.meetingUserRepository.setUserforReport(
+  ): Promise<false | UpdateResult> {
+    return await this.meetingUserRepository.setUserforReport(
       meeting_id,
-      member_id,
+      user_id,
       type,
     );
-
-    if (user) {
-      return {
-        status: 'SUCCESS',
-        code: 200,
-      };
-    }
-    return {
-      status: 'FAIL',
-      code: 500,
-    };
   }
 
   // 멤버 기록 보기
@@ -180,5 +120,36 @@ export class MeetingService {
       status: 'SUCCESS',
       code: 200,
     };
+  }
+
+  // 모임 개설
+  async createMeeting(
+    user_id: number,
+    createMeetingDto: CreateMeetingDto,
+  ): Promise<Meeting> {
+    try {
+      const meeting = await this.meetingRepository.createMeeting(
+        user_id,
+        createMeetingDto,
+      );
+      const meetingUser = await this.joinMeeting(user_id, meeting.id);
+
+      if (meetingUser) {
+        return meeting;
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          error: error,
+          message: '모임 개설 실패',
+        },
+        500,
+      );
+    }
+  }
+
+  // 모임 참여
+  async joinMeeting(user_id: number, meeting_id: number): Promise<MeetingUser> {
+    return await this.meetingUserRepository.joinMeeting(user_id, meeting_id);
   }
 }

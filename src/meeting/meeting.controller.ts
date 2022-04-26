@@ -3,7 +3,8 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { User } from 'src/user/entities/user.entity';
-import { MeetingCategoryDto } from './dto/search-meeting.dto';
+import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { MeetingCategoryDto, ReportUserDto } from './dto/meeting.dto';
 import { MeetingService } from './meeting.service';
 
 @ApiTags('Meeting')
@@ -11,13 +12,14 @@ import { MeetingService } from './meeting.service';
 @UseGuards(JwtAuthGuard)
 export class MeetingController {
   constructor(private readonly meetingService: MeetingService) {}
-  @ApiOperation({ summary: '모임 첫 화면 API' })
+
+  @ApiOperation({ summary: 'A300: 모임 첫 화면 API' })
   @Get('')
   async getMeeting(@GetUser() user: User) {
     return await this.meetingService.getMeeting(user.id);
   }
 
-  @ApiOperation({ summary: '카테고리 검색 API' })
+  @ApiOperation({ summary: 'A300: 카테고리 검색 API' })
   @ApiBody({ type: MeetingCategoryDto })
   @Post('category')
   async getMeetingByCategory(
@@ -30,7 +32,7 @@ export class MeetingController {
     );
   }
 
-  @ApiOperation({ summary: '검색어 검색 API' })
+  @ApiOperation({ summary: 'A300: 검색어 검색 API' })
   @Get('search/:search')
   async getMeetingBySearch(
     @GetUser() user: User,
@@ -53,27 +55,46 @@ export class MeetingController {
 
   @ApiOperation({
     summary: 'A302: 유저 신고/추천 API',
-    description: 'member_id: 상대유저 / type 0: 추천, 1: 신고',
+    description: 'user_id: 상대유저 / type 0: 추천, 1: 신고',
   })
-  @Get(':meeting_id/report/user/:member_id/type/:type')
+  @ApiBody({ type: ReportUserDto })
+  @Post(':meeting_id/report')
   async setUserforReport(
     @Param('meeting_id') meeting_id: number,
-    @Param('member_id') member_id: number,
-    @Param('type') type: number,
+    @Body() reportUserDto: ReportUserDto,
   ) {
     return await this.meetingService.setUserforReport(
       meeting_id,
-      member_id,
-      type,
+      reportUserDto.user_id,
+      reportUserDto.type,
     );
   }
 
   @ApiOperation({ summary: 'A304: 멤버 기록 API' })
-  @Get('category')
+  @Get(':meeting_id/member/:member_id')
   async getMemberRecord(
     @Param('meeting_id') meeting_id: number,
     @Param('member_id') member_id: number,
   ) {
     return await this.meetingService.getMemberRecord(meeting_id, member_id);
+  }
+
+  @ApiOperation({ summary: 'A303: 모임 개설 API' })
+  @ApiBody({ type: CreateMeetingDto })
+  @Post('')
+  async createMeeting(
+    @GetUser() user: User,
+    @Body() createMeetingDto: CreateMeetingDto,
+  ) {
+    return await this.meetingService.createMeeting(user.id, createMeetingDto);
+  }
+
+  @ApiOperation({ summary: '모임 참여 API' })
+  @Get(':meeting_id/join')
+  async joinMeeting(
+    @GetUser() user: User,
+    @Param('meeting_id') meeting_id: number,
+  ) {
+    return await this.meetingService.joinMeeting(user.id, meeting_id);
   }
 }

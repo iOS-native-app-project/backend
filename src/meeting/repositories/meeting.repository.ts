@@ -1,14 +1,22 @@
-import { InjectConnection } from '@nestjs/typeorm';
-import { Connection, EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
+import { CreateMeetingDto } from '../dto/create-meeting.dto';
 import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
 export class MeetingRepository extends Repository<Meeting> {
-  constructor(
-    @InjectConnection()
-    private connection: Connection,
-  ) {
-    super();
+  async getMeeting(id: number) {
+    return this.createQueryBuilder('meeting')
+      .select([
+        'meeting.name, meeting.image, meeting.descript, meeting.limit',
+        'meeting.cycle, meeting.unit, meeting.target_amount, meeting.target_unit',
+        'category.name as categoryName',
+        'user.nickname as ownerName',
+        'user.image_path as userImage',
+      ])
+      .leftJoinAndSelect('meeting.users', 'user')
+      .leftJoinAndSelect('meeting.category', 'category')
+      .where('meeting.id = :id', { id })
+      .getOne();
   }
 
   async getMeetingBySearch(search: string) {
@@ -26,11 +34,11 @@ export class MeetingRepository extends Repository<Meeting> {
       .getMany();
   }
 
-  async getMeetingByUserId(user_id: number) {
-    return this.connection.query(
-      `select * from meeting m left outer join meeting_user m_user 
-      on m_user.meeting_id = m.id where m_user.user_id = ?`,
-      [user_id],
-    );
+  async createMeeting(user_id: number, createMeetingDto: CreateMeetingDto) {
+    const meeting = this.create({
+      ...createMeetingDto,
+      owner_id: user_id,
+    });
+    return this.save(meeting);
   }
 }

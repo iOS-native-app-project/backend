@@ -1,7 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { MeetingUser } from 'src/meeting/entities/meeting-user.entity';
+import { Meeting } from 'src/meeting/entities/meeting.entity';
 
 @Entity({ name: 'user' })
 export class User extends CoreEntityAndDelete {
@@ -44,4 +46,10 @@ export class User extends CoreEntityAndDelete {
     select: false,
   })
   refreshToken: string;
+
+  @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.users)
+  meetingUsers: MeetingUser[];
+
+  @OneToMany(() => Meeting, (tbMeeting) => tbMeeting.users)
+  meetings: Meeting[];
 }
