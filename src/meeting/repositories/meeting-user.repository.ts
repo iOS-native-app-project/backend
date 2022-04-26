@@ -28,7 +28,7 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
     try {
       const user = await this.createQueryBuilder('meeting_user')
         .where('meeting_user.meeting_id = :meeting_id', { meeting_id })
-        .andWhere('meeting_user.user_id = :member_id', { user_id })
+        .andWhere('meeting_user.user_id = :user_id', { user_id })
         .getOne();
 
       if (type && type == 1) {
