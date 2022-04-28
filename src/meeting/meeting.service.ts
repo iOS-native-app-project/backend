@@ -1,9 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateResult } from 'typeorm';
+import { CreateMeetingDetailDto } from './dto/create-meeting-detail.dto';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { MeetingUserDetail } from './entities/meeting-user-detail.entity';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
+import { MeetingDetailRepository } from './repositories/meeting-detail.repository';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';
 
@@ -14,6 +17,8 @@ export class MeetingService {
     private meetingRepository: MeetingRepository,
     @InjectRepository(MeetingUserRepository)
     private meetingUserRepository: MeetingUserRepository,
+    @InjectRepository(MeetingDetailRepository)
+    private meetingDetailRepository: MeetingDetailRepository,
   ) {}
 
   // 모임 첫 화면
@@ -86,14 +91,17 @@ export class MeetingService {
   }
 
   // 모임 홈
-  // todo : deadline이 있어야 목표 달성치 평균을 낼수있음
-  // 멤버 프로필사진, 닉네임, 달성율, 추천, 신고
+  // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
   async getMeetingHome(id: number) {
     const meetingData = await this.meetingRepository.getMeeting(id);
 
     const meetingUser =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
     console.log(meetingUser);
+
+    // 멤버별 달성률 및 순위
+
+    // 모임 전체 달성률
 
     return {
       meetingData: meetingData,
@@ -151,5 +159,14 @@ export class MeetingService {
   // 모임 참여
   async joinMeeting(user_id: number, meeting_id: number): Promise<MeetingUser> {
     return await this.meetingUserRepository.joinMeeting(user_id, meeting_id);
+  }
+
+  // 모임 기록하기
+  async createMeetingDetail(
+    createMeetingDetailDto: CreateMeetingDetailDto,
+  ): Promise<MeetingUserDetail> {
+    return await this.meetingDetailRepository.createMeetingDetail(
+      createMeetingDetailDto,
+    );
   }
 }

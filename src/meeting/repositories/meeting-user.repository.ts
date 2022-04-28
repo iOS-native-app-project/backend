@@ -14,7 +14,7 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       ])
       .leftJoinAndSelect('meeting_user.users', 'user')
       .where('meeting_user.meeting_id = :id', { id })
-      .getOne();
+      .getMany();
   }
 
   async getMeetingByUserId(user_id: number) {
