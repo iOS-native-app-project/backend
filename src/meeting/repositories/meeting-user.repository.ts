@@ -6,29 +6,29 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
   async getMeetingUserByMeetingId(id: number) {
     return await this.createQueryBuilder('meeting_user')
       .select([
-        'user.id as user_id',
+        'user.id as userId',
         'user.nickname',
-        'user.image_path',
+        'user.imagePath',
         'meeting_user.recommand',
         'meeting_user.report',
       ])
       .leftJoinAndSelect('meeting_user.users', 'user')
-      .where('meeting_user.meeting_id = :id', { id })
-      .getMany();
+      .where('meeting_user.meetingId = :id', { id })
+      .getOne();
   }
 
-  async getMeetingByUserId(user_id: number) {
+  async getMeetingByUserId(userId: number) {
     return await this.createQueryBuilder('meeting_user')
       .leftJoinAndSelect('meeting_user.meetings', 'meeting')
-      .where('meeting_user.user_id = :user_id', { user_id })
+      .where('meeting_user.userId = :userId', { userId })
       .getMany();
   }
 
-  async setUserforReport(meeting_id: number, user_id: number, type: number) {
+  async setUserforReport(meetingId: number, userId: number, type: number) {
     try {
       const user = await this.createQueryBuilder('meeting_user')
-        .where('meeting_user.meeting_id = :meeting_id', { meeting_id })
-        .andWhere('meeting_user.user_id = :user_id', { user_id })
+        .where('meeting_user.meetingId = :meetingId', { meetingId })
+        .andWhere('meeting_user.userId = :userId', { userId })
         .getOne();
 
       if (type && type == 1) {
@@ -40,8 +40,8 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
     }
   }
 
-  async joinMeeting(user_id: number, meeting_id: number) {
-    const meetingUser = this.create({ meeting_id, user_id });
+  async joinMeeting(userId: number, meetingId: number) {
+    const meetingUser = this.create({ meetingId, userId });
     return this.save(meetingUser);
   }
 }

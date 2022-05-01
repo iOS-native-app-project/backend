@@ -25,10 +25,10 @@ export class MeetingController {
   @Post('category')
   async getMeetingByCategory(
     @GetUser() user: User,
-    @Body() category_id: MeetingCategoryDto,
+    @Body() categoryId: MeetingCategoryDto,
   ) {
     return await this.meetingService.getMeetingByCategory(
-      category_id.category_id,
+      categoryId.categoryId,
       user.id,
     );
   }
@@ -43,41 +43,41 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: 'A301: 모임 입장 화면 API' })
-  @Get(':meeting_id')
-  async getMeetingById(@Param('meeting_id') meeting_id: number) {
-    return await this.meetingService.getMeetingById(meeting_id);
+  @Get(':meetingId')
+  async getMeetingById(@Param('meetingId') meetingId: number) {
+    return await this.meetingService.getMeetingById(meetingId);
   }
 
   @ApiOperation({ summary: 'A302: 모임 홈 화면 API' })
-  @Get('home/:meeting_id')
-  async getMeetingHome(@Param('meeting_id') meeting_id: number) {
-    return await this.meetingService.getMeetingHome(meeting_id);
+  @Get('home/:meetingId')
+  async getMeetingHome(@Param('meetingId') meetingId: number) {
+    return await this.meetingService.getMeetingHome(meetingId);
   }
 
   @ApiOperation({
     summary: 'A302: 유저 신고/추천 API',
-    description: 'user_id: 상대유저 / type 0: 추천, 1: 신고',
+    description: 'userId: 상대유저 / type 0: 추천, 1: 신고',
   })
   @ApiBody({ type: ReportUserDto })
-  @Post(':meeting_id/report')
+  @Post(':meetingId/report')
   async setUserforReport(
-    @Param('meeting_id') meeting_id: number,
+    @Param('meetingId') meetingId: number,
     @Body() reportUserDto: ReportUserDto,
   ) {
     return await this.meetingService.setUserforReport(
-      meeting_id,
-      reportUserDto.user_id,
+      meetingId,
+      reportUserDto.userId,
       reportUserDto.type,
     );
   }
 
   @ApiOperation({ summary: 'A304: 멤버 기록 API' })
-  @Get(':meeting_id/member/:member_id')
+  @Get(':meetingId/member/:memberId')
   async getMemberRecord(
-    @Param('meeting_id') meeting_id: number,
-    @Param('member_id') member_id: number,
+    @Param('meetingId') meetingId: number,
+    @Param('memberId') memberId: number,
   ) {
-    return await this.meetingService.getMemberRecord(meeting_id, member_id);
+    return await this.meetingService.getMemberRecord(meetingId, memberId);
   }
 
   @ApiOperation({ summary: 'A303: 모임 개설 API' })
@@ -91,11 +91,11 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: '모임 참여 API' })
-  @Get(':meeting_id/join')
+  @Get(':meetingId/join')
   async joinMeeting(
     @GetUser() user: User,
-    @Param('meeting_id') meeting_id: number,
+    @Param('meetingId') meetingId: number,
   ) {
-    return await this.meetingService.joinMeeting(user.id, meeting_id);
+    return await this.meetingService.joinMeeting(user.id, meetingId);
   }
 }

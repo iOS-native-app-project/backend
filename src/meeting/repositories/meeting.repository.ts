@@ -6,13 +6,7 @@ import { Meeting } from '../entities/meeting.entity';
 export class MeetingRepository extends Repository<Meeting> {
   async getMeeting(id: number) {
     return this.createQueryBuilder('meeting')
-      .select([
-        'meeting.name, meeting.image, meeting.descript, meeting.limit',
-        'meeting.cycle, meeting.unit, meeting.target_amount, meeting.target_unit',
-        'category.name as categoryName',
-        'user.nickname as ownerName',
-        'user.image_path as userImage',
-      ])
+      .addSelect('meeting.createdAt')
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
       .where('meeting.id = :id', { id })
@@ -28,16 +22,16 @@ export class MeetingRepository extends Repository<Meeting> {
       .getMany();
   }
 
-  async getMeetingByCategory(category_id: number[]) {
+  async getMeetingByCategory(categoryId: number[]) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.category_id IN (:...ids)', { ids: category_id })
+      .where('meeting.categoryId IN (:...ids)', { ids: categoryId })
       .getMany();
   }
 
-  async createMeeting(user_id: number, createMeetingDto: CreateMeetingDto) {
+  async createMeeting(userId: number, createMeetingDto: CreateMeetingDto) {
     const meeting = this.create({
       ...createMeetingDto,
-      owner_id: user_id,
+      ownerId: userId,
     });
     return this.save(meeting);
   }

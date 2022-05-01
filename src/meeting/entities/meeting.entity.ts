@@ -26,7 +26,7 @@ export class Meeting extends CoreEntity {
     description: '카테고리 id',
   })
   @Column('int', { name: 'category_id', default: 1 })
-  category_id: number;
+  categoryId: number;
 
   @ApiProperty({
     example: '모임 설명',
@@ -53,7 +53,7 @@ export class Meeting extends CoreEntity {
     description: '방장 id',
   })
   @Column('int', { name: 'owner_id', comment: '방장' })
-  owner_id: number;
+  ownerId: number;
 
   @ApiProperty({
     example: '1234',
@@ -100,7 +100,7 @@ export class Meeting extends CoreEntity {
     comment: '목표달성수치 (거리:m 단위, 시간:분 단위)',
     default: 10,
   })
-  target_amount: number;
+  targetAmount: number;
 
   @Column('int', {
     name: 'round',
