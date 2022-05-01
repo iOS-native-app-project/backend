@@ -7,10 +7,10 @@ import { Meeting } from './meeting.entity';
 @Entity({ name: 'meeting_user' })
 export class MeetingUser extends CoreEntity {
   @Column('int', { name: 'meeting_id' })
-  meeting_id: number;
+  meetingId: number;
 
   @Column('int', { name: 'user_id' })
-  user_id: number;
+  userId: number;
 
   @Column('int', { name: 'recommand', comment: '추천수', default: 0 })
   recommand: number;

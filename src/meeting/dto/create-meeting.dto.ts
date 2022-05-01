@@ -5,5 +5,5 @@ export class CreateMeetingDto extends OmitType(Meeting, [
   'id',
   'createdAt',
   'updatedAt',
-  'owner_id',
+  'ownerId',
 ]) {}

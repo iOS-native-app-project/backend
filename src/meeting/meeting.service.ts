@@ -17,52 +17,52 @@ export class MeetingService {
   ) {}
 
   // 모임 첫 화면
-  async getMeeting(user_id: number): Promise<Meeting[] | string> {
+  async getMeeting(userId: number): Promise<Meeting[] | string> {
     const meetingInfo = await this.meetingRepository.find();
 
     if (meetingInfo.length === 0) {
       return '검색 결과가 없습니다.';
     }
-    return await this.setJoinData(user_id, meetingInfo);
+    return await this.setJoinData(userId, meetingInfo);
   }
 
   // 카테고리 필터 검색
   async getMeetingByCategory(
-    category_id: number[],
-    user_id: number,
+    categoryId: number[],
+    userId: number,
   ): Promise<Meeting[] | string> {
     const meetingInfo = await this.meetingRepository.getMeetingByCategory(
-      category_id,
+      categoryId,
     );
 
     if (meetingInfo.length === 0) {
       return '검색 결과가 없습니다.';
     }
-    return await this.setJoinData(user_id, meetingInfo);
+    return await this.setJoinData(userId, meetingInfo);
   }
 
   // 검색어로 검색 (모임명,한줄소개)
   async getMeetingBySearch(
     search: string,
-    user_id: number,
+    userId: number,
   ): Promise<Meeting[] | string> {
     const meetingInfo = await this.meetingRepository.getMeetingBySearch(search);
 
     if (meetingInfo.length === 0) {
       return '검색 결과가 없습니다.';
     }
-    return await this.setJoinData(user_id, meetingInfo);
+    return await this.setJoinData(userId, meetingInfo);
   }
 
-  async setJoinData(user_id: number, meetingInfo: Meeting[]) {
+  async setJoinData(userId: number, meetingInfo: Meeting[]) {
     const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
-      user_id,
+      userId,
     );
 
     if (myMeeting) {
       meetingInfo.forEach((element) => {
         for (let i = 0; i < myMeeting.length; i++) {
-          if (element.id == myMeeting[i].meeting_id) {
+          if (element.id == myMeeting[i].meetingId) {
             element['join'] = true;
             break;
           }
@@ -73,11 +73,9 @@ export class MeetingService {
   }
 
   // 모임 입장
-  async getMeetingById(id: number) {
-    const meetingUser = await this.meetingUserRepository.count({
-      meeting_id: id,
-    });
-    const meetingData = await this.meetingRepository.getMeeting(id);
+  async getMeetingById(meetingId: number) {
+    const meetingUser = await this.meetingUserRepository.count({ meetingId });
+    const meetingData = await this.meetingRepository.getMeeting(meetingId);
 
     return {
       ...meetingData,
@@ -90,6 +88,7 @@ export class MeetingService {
   // 멤버 프로필사진, 닉네임, 달성율, 추천, 신고
   async getMeetingHome(id: number) {
     const meetingData = await this.meetingRepository.getMeeting(id);
+    console.log(meetingData);
 
     const meetingUser =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
@@ -103,19 +102,19 @@ export class MeetingService {
   // 추천 신고 API
   // 0: recommand, 1: report
   async setUserforReport(
-    meeting_id: number,
-    user_id: number,
+    meetingId: number,
+    userId: number,
     type: number,
   ): Promise<false | UpdateResult> {
     return await this.meetingUserRepository.setUserforReport(
-      meeting_id,
-      user_id,
+      meetingId,
+      userId,
       type,
     );
   }
 
   // 멤버 기록 보기
-  async getMemberRecord(meeting_id: number, member_id: number) {
+  async getMemberRecord(meetingId: number, memberId: number) {
     return {
       status: 'SUCCESS',
       code: 200,
@@ -124,15 +123,15 @@ export class MeetingService {
 
   // 모임 개설
   async createMeeting(
-    user_id: number,
+    userId: number,
     createMeetingDto: CreateMeetingDto,
   ): Promise<Meeting> {
     try {
       const meeting = await this.meetingRepository.createMeeting(
-        user_id,
+        userId,
         createMeetingDto,
       );
-      const meetingUser = await this.joinMeeting(user_id, meeting.id);
+      const meetingUser = await this.joinMeeting(userId, meeting.id);
 
       if (meetingUser) {
         return meeting;
@@ -149,7 +148,7 @@ export class MeetingService {
   }
 
   // 모임 참여
-  async joinMeeting(user_id: number, meeting_id: number): Promise<MeetingUser> {
-    return await this.meetingUserRepository.joinMeeting(user_id, meeting_id);
+  async joinMeeting(userId: number, meetingId: number): Promise<MeetingUser> {
+    return await this.meetingUserRepository.joinMeeting(userId, meetingId);
   }
 }

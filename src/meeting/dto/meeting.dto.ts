@@ -7,7 +7,7 @@ export class MeetingCategoryDto {
     example: [1],
     description: '모임 카테고리',
   })
-  category_id: number[];
+  categoryId: number[];
 }
 
 export class ReportUserDto {
@@ -16,7 +16,7 @@ export class ReportUserDto {
     example: 1,
     description: '상대유저',
   })
-  user_id: number;
+  userId: number;
 
   @IsNumber()
   @ApiProperty({
