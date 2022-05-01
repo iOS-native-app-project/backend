@@ -31,6 +31,7 @@ export class Meeting extends CoreEntity {
   @ApiProperty({
     example: '모임 설명',
     description: '모임 설명',
+    required: false,
   })
   @Column('varchar', {
     name: 'descript',
@@ -57,6 +58,7 @@ export class Meeting extends CoreEntity {
   @ApiProperty({
     example: '1234',
     description: '모임 비밀번호',
+    required: false,
   })
   @Column('varchar', {
     name: 'password',
@@ -99,6 +101,13 @@ export class Meeting extends CoreEntity {
     default: 10,
   })
   target_amount: number;
+
+  @Column('int', {
+    name: 'round',
+    comment: '모임의 차수',
+    default: 1,
+  })
+  round: number;
 
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meetings)
   meetingUsers: MeetingUser[];
