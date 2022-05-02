@@ -10,7 +10,7 @@ export class MeetingUserDetail extends CoreEntity {
     description: '모임 유저 ID',
   })
   @Column('varchar', { name: 'meeting_user_id' })
-  meeting_user_id: string;
+  meetingUserId: string;
 
   @ApiProperty({
     example: '1970-01-01 00:00:00',
