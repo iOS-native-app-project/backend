@@ -3,22 +3,12 @@ import { Record } from '../entities/record.entity';
 
 @EntityRepository(Record)
 export class RecordRepository extends Repository<Record> {
-  async findAll(meetingId: number, userId: number) {
-    return await this.createQueryBuilder('user')
-      .where('user.id = :userId and metting.id = :meetingId', {
-        userId,
+  async findAll(meetingId: number, meetingUserId: number) {
+    return await this.createQueryBuilder('record')
+      .where('meeting_user_id = :meetingUserId and meeting_id = :meetingId', {
+        meetingUserId,
         meetingId,
       })
       .getMany();
-  }
-
-  async findById(id: number, meetingId: number, userId: number) {
-    return await this.createQueryBuilder('user')
-      .where('user.id = :userId and metting.id = :meetingId and id = :id', {
-        userId,
-        meetingId,
-        id,
-      })
-      .getOne();
   }
 }

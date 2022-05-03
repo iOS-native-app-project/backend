@@ -1,59 +1,64 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Length } from 'class-validator';
+import { CoreEntity } from 'src/common/entity/core.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { CoreEntity } from '../../common/entity/core.entity';
+import { MeetingUser } from '../../meeting/entities/meeting-user.entity';
 import { Meeting } from '../../meeting/entities/meeting.entity';
-import { User } from '../../user/entities/user.entity';
 
 @Entity({ name: 'record' })
 export class Record extends CoreEntity {
   @ApiProperty({
+    example: 1,
+    description: '모임 유저 ID',
+  })
+  @Column('int', { name: 'meeting_user_id' })
+  meetingUserId: number;
+
+  @Column('int', { name: 'meeting_id' })
+  meetingId: number;
+
+  @ApiProperty({
+    example: '1970-01-01 00:00:00',
+    description: '기록 날짜',
+  })
+  @Column('datetime', {
+    name: 'date',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  date: number;
+
+  @ApiProperty({
+    example: 1,
+    description: '상세달성수치',
+  })
+  @Column('int', { name: 'value', default: 0, comment: '상세달성수치' })
+  value: string;
+
+  @ApiProperty({
     example: 'img.png',
-    description: '이미지 경로',
+    description: '상세 이미지',
   })
-  @Length(1, 100)
-  @Column({
-    name: 'image',
-    type: 'varchar',
-    length: 100,
-  })
+  @Column('varchar', { name: 'image', length: 100, nullable: true })
   image: string;
 
   @ApiProperty({
-    example: 10,
-    description: '수치',
-  })
-  @IsInt()
-  @Column({
-    name: 'value',
-    type: 'int',
-  })
-  value: number;
-
-  @ApiProperty({
-    example: 10,
+    example: '상세 설명',
     description: '설명',
   })
-  @Length(1, 100)
-  @Column({
-    name: 'descript',
-    type: 'varchar',
-    length: 100,
-  })
+  @Column('varchar', { name: 'descript', length: 200, nullable: true })
   descript: string;
 
-  @ApiProperty({
-    example: '2022-01-01',
-    description: '날짜',
-  })
-  @Length(10, 10, { message: 'Please enter a date in the format yyyy-mm-dd.' })
-  @Column({ name: 'date', type: 'varchar', length: 6 })
-  date;
-
-  @ManyToOne(() => User, (tbUser) => tbUser.records, {
+  @ManyToOne(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.id, {
     onDelete: 'RESTRICT',
     onUpdate: 'RESTRICT',
   })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @JoinColumn([{ name: 'meeting_user_id' }])
+  meetingUser: MeetingUser;
+
+  @ManyToOne(() => Meeting, (tbMeeting) => tbMeeting.id, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([{ name: 'meeting_id' }])
+  Meeting: Meeting;
 }

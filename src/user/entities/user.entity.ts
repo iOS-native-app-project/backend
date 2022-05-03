@@ -53,10 +53,4 @@ export class User extends CoreEntityAndDelete {
 
   @OneToMany(() => Meeting, (tbMeeting) => tbMeeting.users)
   meetings: Meeting[];
-
-  @OneToMany(() => Record, (tbRecord) => tbRecord.user, {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  })
-  records: Record[];
 }
