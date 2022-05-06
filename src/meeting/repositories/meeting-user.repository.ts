@@ -5,16 +5,9 @@ import { MeetingUser } from '../entities/meeting-user.entity';
 export class MeetingUserRepository extends Repository<MeetingUser> {
   async getMeetingUserByMeetingId(id: number) {
     return await this.createQueryBuilder('meeting_user')
-      .select([
-        'user.id as userId',
-        'user.nickname',
-        'user.imagePath',
-        'meeting_user.recommand',
-        'meeting_user.report',
-      ])
       .leftJoinAndSelect('meeting_user.users', 'user')
       .where('meeting_user.meetingId = :id', { id })
-      .getOne();
+      .getMany();
   }
 
   async getMeetingByUserId(userId: number) {
