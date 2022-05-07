@@ -20,19 +20,9 @@ export class RecordService {
     meetingId: number,
     user: User,
   ) {
-    const { image, descript, date, value } = createRecordDto;
-
     await this.validation(user.id, meetingId);
 
-    const record = new Record();
-    record.image = image;
-    record.descript = descript;
-    record.date = date;
-    record.value = value;
-    record.meetingUserId = user.id;
-    record.meetingId = meetingId;
-
-    await this.recordRepository.save(record);
+    await this.recordRepository.createSave(createRecordDto, user.id);
 
     return;
   }

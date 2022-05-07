@@ -1,4 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
+import { CreateRecordDto } from '../dto/create-record.dto';
 import { Record } from '../entities/record.entity';
 
 @EntityRepository(Record)
@@ -10,5 +11,14 @@ export class RecordRepository extends Repository<Record> {
         meetingId,
       })
       .getMany();
+  }
+
+  async createSave(createRecordDto: CreateRecordDto, userId) {
+    return this.save(
+      this.create({
+        ...createRecordDto,
+        meetingUserId: userId,
+      }),
+    );
   }
 }
