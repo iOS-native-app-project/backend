@@ -17,16 +17,11 @@ export class Record extends CoreEntity {
   meetingId: number;
 
   @ApiProperty({
-    example: '1970-01-01 00:00:00',
+    example: '2022-01-01',
     description: '기록 날짜',
   })
-  @Column('datetime', {
-    name: 'date',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  date: number;
-
+  @Column('varchar', { name: 'date', length: 10 })
+  date: string;
   @ApiProperty({
     example: 1,
     description: '상세달성수치',
