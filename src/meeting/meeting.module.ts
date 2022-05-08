@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryRepository } from 'src/category/repositories/category.repository';
 import { MeetingController } from './meeting.controller';
 import { MeetingService } from './meeting.service';
-import { MeetingDetailRepository } from './repositories/meeting-detail.repository';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';
 
@@ -13,7 +12,6 @@ import { MeetingRepository } from './repositories/meeting.repository';
       MeetingRepository,
       MeetingUserRepository,
       CategoryRepository,
-      MeetingDetailRepository,
     ]),
   ],
   controllers: [MeetingController],

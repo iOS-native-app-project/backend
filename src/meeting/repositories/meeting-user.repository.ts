@@ -24,6 +24,15 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       .getMany();
   }
 
+  async getMeetingByUserIdAndMeetingId(userId: number, meetingId: number) {
+    return await this.createQueryBuilder('meeting_user')
+      .where('meeting_user.user_id = :userId and meeting_id = :meetingId', {
+        userId,
+        meetingId,
+      })
+      .getOne();
+  }
+
   async setUserforReport(meetingId: number, userId: number, type: number) {
     try {
       const user = await this.createQueryBuilder('meeting_user')
