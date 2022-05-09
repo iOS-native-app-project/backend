@@ -2,7 +2,6 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
-import { CategoryService } from 'src/category/category.service';
 import { User } from 'src/user/entities/user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { MeetingCategoryDto, ReportUserDto } from './dto/meeting.dto';
@@ -13,15 +12,11 @@ import { MeetingService } from './meeting.service';
 @ApiBearerAuth('accessToken')
 @UseGuards(JwtAuthGuard)
 export class MeetingController {
-  constructor(
-    private readonly meetingService: MeetingService,
-    private readonly categoryService: CategoryService,
-  ) {}
+  constructor(private readonly meetingService: MeetingService) {}
 
   @ApiOperation({ summary: 'A200: 메인홈 화면 API' })
   @Get('main')
   async getMainMeeting(@GetUser() user: User) {
-    // const categories = this.categoryService.getCategory();
     return await this.meetingService.getMainMeeting(user.id);
   }
 

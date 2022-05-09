@@ -25,28 +25,36 @@ export class MeetingService {
 
   async getMainMeeting(userId: number) {
     // todo 진행률 추가
-    const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
+    const myMeetings = await this.meetingUserRepository.getMeetingByUserId(
       userId,
     );
+    const meetings = this.checkPassword(myMeetings);
     const categories = await this.categoryService.getCategory();
-    const recommendMeeting =
-      await this.meetingUserRepository.getMeetingNonUserId(userId);
+    const recommendMeetings = await this.meetingRepository.getAll();
+
+    for (const recommendMeeting of recommendMeetings) {
+      const memberCount = await this.meetingUserRepository.count({
+        meetingId: recommendMeeting.meeting_id,
+      });
+      recommendMeeting['memberCount'] = memberCount;
+    }
 
     return {
-      myMeeting,
+      meetings,
       categories,
-      recommendMeeting,
+      recommendMeetings,
     };
   }
 
   // 모임 첫 화면
   async getMeeting(userId: number): Promise<Meeting[] | string> {
-    const meetingInfo = await this.meetingRepository.find();
+    const meetingInfos = await this.meetingRepository.find();
+    const meetings = this.checkPassword(meetingInfos);
 
-    if (meetingInfo.length === 0) {
+    if (meetingInfos.length === 0) {
       return '검색 결과가 없습니다.';
     }
-    return await this.setJoinData(userId, meetingInfo);
+    return await this.setJoinData(userId, meetings);
   }
 
   // 카테고리 필터 검색
@@ -54,14 +62,15 @@ export class MeetingService {
     categoryId: number[],
     userId: number,
   ): Promise<Meeting[] | string> {
-    const meetingInfo = await this.meetingRepository.getMeetingByCategory(
+    const meetingInfos = await this.meetingRepository.getMeetingByCategory(
       categoryId,
     );
+    const meetings = this.checkPassword(meetingInfos);
 
-    if (meetingInfo.length === 0) {
+    if (meetingInfos.length === 0) {
       return '검색 결과가 없습니다.';
     }
-    return await this.setJoinData(userId, meetingInfo);
+    return await this.setJoinData(userId, meetings);
   }
 
   // 검색어로 검색 (모임명,한줄소개)
@@ -69,12 +78,15 @@ export class MeetingService {
     search: string,
     userId: number,
   ): Promise<Meeting[] | string> {
-    const meetingInfo = await this.meetingRepository.getMeetingBySearch(search);
+    const meetingInfos = await this.meetingRepository.getMeetingBySearch(
+      search,
+    );
+    const meetings = this.checkPassword(meetingInfos);
 
-    if (meetingInfo.length === 0) {
+    if (meetingInfos.length === 0) {
       return '검색 결과가 없습니다.';
     }
-    return await this.setJoinData(userId, meetingInfo);
+    return await this.setJoinData(userId, meetings);
   }
 
   async setJoinData(userId: number, meetingInfos: Meeting[]) {
@@ -103,7 +115,7 @@ export class MeetingService {
   // 모임 입장
   async getMeetingById(meetingId: number) {
     const memberCount = await this.meetingUserRepository.count({ meetingId });
-    const meetingData = await this.meetingRepository.getMeeting(meetingId);
+    const meetingData = await this.meetingRepository.getMeetingById(meetingId);
 
     return {
       ...meetingData,
@@ -114,7 +126,7 @@ export class MeetingService {
   // 모임 홈
   // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
   async getMeetingHome(id: number) {
-    const meeting = await this.meetingRepository.getMeeting(id);
+    const meeting = await this.meetingRepository.getMeetingById(id);
 
     const meetingUsers =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
@@ -206,7 +218,9 @@ export class MeetingService {
     targetAmount: number,
     startDate: Date,
     endDate: Date,
-  ) {}
+  ) {
+    return;
+  }
 
   // 추천 신고 API
   // 0: recommand, 1: report
@@ -261,5 +275,14 @@ export class MeetingService {
   // todo 이미 참여 되있을 경우 메세지 출력
   async joinMeeting(userId: number, meetingId: number): Promise<MeetingUser> {
     return await this.meetingUserRepository.joinMeeting(userId, meetingId);
+  }
+
+  // 모임 password 유무 확인
+  checkPassword(meetings: Meeting[]) {
+    for (const meeting of meetings) {
+      if (meeting.password) meeting['password'] = 'true';
+      else meeting['password'] = 'false';
+    }
+    return meetings;
   }
 }

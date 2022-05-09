@@ -4,7 +4,18 @@ import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
 export class MeetingRepository extends Repository<Meeting> {
-  async getMeeting(id: number) {
+  async getAll() {
+    return this.createQueryBuilder('meeting')
+      .select([
+        'meeting.id',
+        'meeting.name',
+        'meeting.descript',
+        'meeting.image',
+      ])
+      .getRawMany();
+  }
+
+  async getMeetingById(id: number) {
     return this.createQueryBuilder('meeting')
       .addSelect('meeting.createdAt')
       .leftJoinAndSelect('meeting.users', 'user')
