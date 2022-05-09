@@ -42,14 +42,12 @@ export class RecordRepository extends Repository<Record> {
 
   getMeetingValueSumByMeetingUserId(
     id: number,
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
   ) {
     return this.createQueryBuilder('record')
       .select(['sum(value) as sum_value'])
-      .where(
-        `date BETWEEN '${startDate.toISOString()}' AND '${endDate.toISOString()}'`,
-      )
+      .where(`date BETWEEN '${startDate}' AND '${endDate}'`)
       .andWhere('meeting_user_id = :id', { id })
       .leftJoin('record.meetingUser', 'meetingUser')
       .groupBy('meeting_user_id')

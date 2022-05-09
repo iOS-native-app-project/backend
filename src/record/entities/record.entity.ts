@@ -22,6 +22,7 @@ export class Record extends CoreEntity {
   })
   @Column('varchar', { name: 'date', length: 10 })
   date: string;
+
   @ApiProperty({
     example: 1,
     description: '상세달성수치',

@@ -144,20 +144,17 @@ export class MeetingService {
     );
 
     // 모임 전체 달성률
-    const meetingRate = await this.getMeetingRate(
-      meeting.meeting_id,
-      meeting.meeting_target_amount,
-      date.startDate,
-      date.endDate,
-    );
+    // const meetingRate = await this.getMeetingRate(
+    //   meeting.meeting_id,
+    //   meeting.meeting_target_amount,
+    //   date.startDate,
+    //   date.endDate,
+    // );
 
     return {
       meeting,
       memberRate,
-      meetingDate: {
-        startDate: checkDateFormat(date.startDate),
-        endDate: checkDateFormat(date.endDate),
-      },
+      meetingDate: date,
     };
   }
 
@@ -178,8 +175,8 @@ export class MeetingService {
     }
 
     return {
-      startDate,
-      endDate,
+      startDate: checkDateFormat(startDate),
+      endDate: checkDateFormat(endDate),
     };
   }
 
@@ -187,8 +184,8 @@ export class MeetingService {
   async getMeetingUserRate(
     targetAmount: number,
     meetingUsers: MeetingUser[],
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
   ) {
     // eslint-disable-next-line prefer-const
     let memberRate: { userId: number; rate: number }[] = [];
@@ -213,8 +210,8 @@ export class MeetingService {
   async getMeetingRate(
     meetinfId: number,
     targetAmount: number,
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
   ) {
     return;
   }
