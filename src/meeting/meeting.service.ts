@@ -77,32 +77,37 @@ export class MeetingService {
     return await this.setJoinData(userId, meetingInfo);
   }
 
-  async setJoinData(userId: number, meetingInfo: Meeting[]) {
+  async setJoinData(userId: number, meetingInfos: Meeting[]) {
     const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
       userId,
     );
 
-    if (myMeeting) {
-      meetingInfo.forEach((element) => {
+    for (const meetingInfo of meetingInfos) {
+      const memberCount = await this.meetingUserRepository.count({
+        meetingId: meetingInfo.id,
+      });
+      meetingInfo['memberCount'] = memberCount;
+      meetingInfo['join'] = false;
+      if (myMeeting) {
         for (let i = 0; i < myMeeting.length; i++) {
-          if (element.id == myMeeting[i].meetingId) {
-            element['join'] = true;
+          if (meetingInfo.id == myMeeting[i].meetingId) {
+            meetingInfo['join'] = true;
             break;
           }
         }
-      });
+      }
     }
-    return meetingInfo;
+    return meetingInfos;
   }
 
   // 모임 입장
   async getMeetingById(meetingId: number) {
-    const meetingUser = await this.meetingUserRepository.count({ meetingId });
+    const memberCount = await this.meetingUserRepository.count({ meetingId });
     const meetingData = await this.meetingRepository.getMeeting(meetingId);
 
     return {
       ...meetingData,
-      totalMember: meetingUser,
+      memberCount,
     };
   }
 
