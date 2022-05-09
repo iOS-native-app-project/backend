@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { checkDateFormat } from 'src/common/utility/check-format';
+import { CategoryService } from 'src/category/category.service';
 import { UpdateResult } from 'typeorm';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { MeetingUser } from './entities/meeting-user.entity';
@@ -18,7 +19,25 @@ export class MeetingService {
     private meetingUserRepository: MeetingUserRepository,
     @InjectRepository(MeetingDetailRepository)
     private meetingDetailRepository: MeetingDetailRepository,
+
+    private readonly categoryService: CategoryService,
   ) {}
+
+  async getMainMeeting(userId: number) {
+    // todo 진행률 추가
+    const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
+      userId,
+    );
+    const categories = await this.categoryService.getCategory();
+    const recommendMeeting =
+      await this.meetingUserRepository.getMeetingNonUserId(userId);
+
+    return {
+      myMeeting,
+      categories,
+      recommendMeeting,
+    };
+  }
 
   // 모임 첫 화면
   async getMeeting(userId: number): Promise<Meeting[] | string> {
