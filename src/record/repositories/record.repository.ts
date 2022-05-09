@@ -39,4 +39,20 @@ export class RecordRepository extends Repository<Record> {
       }),
     );
   }
+
+  getMeetingValueSumByMeetingUserId(
+    id: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
+    return this.createQueryBuilder('record')
+      .select(['sum(value) as sum_value'])
+      .where(
+        `date BETWEEN '${startDate.toISOString()}' AND '${endDate.toISOString()}'`,
+      )
+      .andWhere('meeting_user_id = :id', { id })
+      .leftJoin('record.meetingUser', 'meetingUser')
+      .groupBy('meeting_user_id')
+      .getRawOne();
+  }
 }

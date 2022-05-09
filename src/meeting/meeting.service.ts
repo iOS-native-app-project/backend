@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { checkDateFormat } from 'src/common/utility/check-format';
 import { CategoryService } from 'src/category/category.service';
@@ -6,9 +6,9 @@ import { getManager, UpdateResult } from 'typeorm';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
-import { MeetingDetailRepository } from './repositories/meeting-detail.repository';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';
+import { RecordRepository } from 'src/record/repositories/record.repository';
 
 @Injectable()
 export class MeetingService {
@@ -17,14 +17,15 @@ export class MeetingService {
     private meetingRepository: MeetingRepository,
     @InjectRepository(MeetingUserRepository)
     private meetingUserRepository: MeetingUserRepository,
-    @InjectRepository(MeetingDetailRepository)
-    private meetingDetailRepository: MeetingDetailRepository,
+    @InjectRepository(RecordRepository)
+    private recordRepository: RecordRepository,
 
     private readonly categoryService: CategoryService,
   ) {}
 
+  // 매인 홈
+  // todo 진행률 추가
   async getMainMeeting(userId: number) {
-    // todo 진행률 추가
     const myMeetings = await this.meetingUserRepository.getMeetingByUserId(
       userId,
     );
@@ -48,7 +49,7 @@ export class MeetingService {
 
   // 모임 첫 화면
   async getMeeting(userId: number): Promise<Meeting[] | string> {
-    const meetingInfos = await this.meetingRepository.find();
+    const meetingInfos = await this.meetingRepository.findAll();
     const meetings = this.checkPassword(meetingInfos);
 
     if (meetingInfos.length === 0) {
@@ -112,60 +113,56 @@ export class MeetingService {
     return meetingInfos;
   }
 
-  // 모임 입장
-  async getMeetingById(meetingId: number) {
-    const memberCount = await this.meetingUserRepository.count({ meetingId });
-    const meetingData = await this.meetingRepository.getMeetingById(meetingId);
-
-    return {
-      ...meetingData,
-      memberCount,
-    };
-  }
-
   // 모임 홈
   // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
-  async getMeetingHome(id: number) {
+  async getMeetingHome(userId: number, id: number) {
+    // user validation
+    const user =
+      await this.meetingUserRepository.getMeetingByUserIdAndMeetingId(
+        id,
+        userId,
+      );
+    if (!user) throw new NotFoundException('모임에 참여하지 않은 유저입니다.');
+
     const meeting = await this.meetingRepository.getMeetingById(id);
+
+    // 모임 주기 계산
+    const date = await this.calMeetingDate(
+      meeting.meeting_created_at,
+      meeting.meeting_cycle,
+      meeting.meeting_round,
+    );
 
     const meetingUsers =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
-
-    // 모임 주기 계산
-    const data = await this.getMeetingData(
-      meeting.createdAt,
-      meeting.cycle,
-      meeting.round,
-    );
-
     // 멤버별 달성률 및 순위
     const memberRate = await this.getMeetingUserRate(
-      meeting.targetAmount,
+      meeting.meeting_target_amount,
       meetingUsers,
-      data.startDate,
-      data.endDate,
+      date.startDate,
+      date.endDate,
     );
 
     // 모임 전체 달성률
     const meetingRate = await this.getMeetingRate(
-      meeting.id,
-      meeting.targetAmount,
-      data.startDate,
-      data.endDate,
+      meeting.meeting_id,
+      meeting.meeting_target_amount,
+      date.startDate,
+      date.endDate,
     );
 
     return {
       meeting,
       memberRate,
-      meetingData: {
-        startDate: checkDateFormat(data.startDate),
-        endDate: checkDateFormat(data.endDate),
+      meetingDate: {
+        startDate: checkDateFormat(date.startDate),
+        endDate: checkDateFormat(date.endDate),
       },
     };
   }
 
   // 모임 주기 계산
-  async getMeetingData(createdAt: Date, cycle: number, round: number) {
+  async calMeetingDate(createdAt: Date, cycle: number, round: number) {
     const startDate = new Date(createdAt);
     const endDate = new Date(createdAt);
 
@@ -197,7 +194,7 @@ export class MeetingService {
     let memberRate: { userId: number; rate: number }[] = [];
     for (const meetingUser of meetingUsers) {
       const rateData =
-        await this.meetingDetailRepository.getMeetingValueSumByMeetingUserId(
+        await this.recordRepository.getMeetingValueSumByMeetingUserId(
           meetingUser.id,
           startDate,
           endDate,
@@ -212,7 +209,7 @@ export class MeetingService {
     return memberRate;
   }
 
-  // 멤버별 달성률 계산
+  // 모임 달성률 계산
   async getMeetingRate(
     meetinfId: number,
     targetAmount: number,

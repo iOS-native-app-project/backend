@@ -48,16 +48,13 @@ export class MeetingController {
     return await this.meetingService.getMeetingBySearch(search, user.id);
   }
 
-  @ApiOperation({ summary: 'A301: 모임 입장 화면 API' })
-  @Get(':meetingId')
-  async getMeetingById(@Param('meetingId') meetingId: number) {
-    return await this.meetingService.getMeetingById(meetingId);
-  }
-
   @ApiOperation({ summary: 'A302: 모임 홈 화면 API' })
   @Get(':meetingId/home')
-  async getMeetingHome(@Param('meetingId') meetingId: number) {
-    return await this.meetingService.getMeetingHome(meetingId);
+  async getMeetingHome(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+  ) {
+    return await this.meetingService.getMeetingHome(user.id, meetingId);
   }
 
   @ApiOperation({
@@ -103,5 +100,16 @@ export class MeetingController {
     @Param('meetingId') meetingId: number,
   ) {
     return await this.meetingService.joinMeeting(user.id, meetingId);
+  }
+
+  // todo 비밀번호 검증
+  @ApiOperation({ summary: '비밀번호 검증 API' })
+  @Post(':meetingId/check/password')
+  async checkPassword(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+    @Body('password') password: number,
+  ) {
+    return;
   }
 }
