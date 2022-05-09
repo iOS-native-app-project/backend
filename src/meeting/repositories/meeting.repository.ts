@@ -1,4 +1,9 @@
-import { EntityRepository, Repository } from 'typeorm';
+import {
+  EntityManager,
+  EntityRepository,
+  Repository,
+  TransactionManager,
+} from 'typeorm';
 import { CreateMeetingDto } from '../dto/create-meeting.dto';
 import { Meeting } from '../entities/meeting.entity';
 
@@ -39,11 +44,16 @@ export class MeetingRepository extends Repository<Meeting> {
       .getMany();
   }
 
-  async createMeeting(userId: number, createMeetingDto: CreateMeetingDto) {
-    const meeting = this.create({
-      ...createMeetingDto,
-      ownerId: userId,
-    });
-    return this.save(meeting);
+  async createMeeting(
+    @TransactionManager() transactionManager: EntityManager,
+    userId: number,
+    createMeetingDto: CreateMeetingDto,
+  ) {
+    return transactionManager.save(
+      transactionManager.create(Meeting, {
+        ...createMeetingDto,
+        ownerId: userId,
+      }),
+    );
   }
 }

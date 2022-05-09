@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { checkDateFormat } from 'src/common/utility/check-format';
 import { CategoryService } from 'src/category/category.service';
-import { UpdateResult } from 'typeorm';
+import { getManager, UpdateResult } from 'typeorm';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
@@ -245,35 +245,36 @@ export class MeetingService {
   }
 
   // 모임 개설
-  // todo transaction 처리
-  async createMeeting(
-    userId: number,
-    createMeetingDto: CreateMeetingDto,
-  ): Promise<Meeting> {
-    try {
-      const meeting = await this.meetingRepository.createMeeting(
-        userId,
-        createMeetingDto,
-      );
-      const meetingUser = await this.joinMeeting(userId, meeting.id);
-
-      if (meetingUser) {
-        return meeting;
-      }
-    } catch (error) {
-      throw new HttpException(
-        {
-          error: error,
-          message: '모임 개설 실패',
-        },
-        500,
-      );
-    }
+  async createMeeting(userId: number, createMeetingDto: CreateMeetingDto) {
+    await getManager()
+      .transaction(async (transactionManager) => {
+        const meeting = await this.meetingRepository.createMeeting(
+          transactionManager,
+          userId,
+          createMeetingDto,
+        );
+        await this.meetingUserRepository.joinMeeting(
+          userId,
+          meeting.id,
+          transactionManager,
+        );
+      })
+      .catch((error) => {
+        throw new HttpException(
+          {
+            error: error,
+            message: '모임 개설 실패',
+          },
+          500,
+        );
+      });
   }
 
   // 모임 참여
-  // todo 이미 참여 되있을 경우 메세지 출력
-  async joinMeeting(userId: number, meetingId: number): Promise<MeetingUser> {
+  async joinMeeting(
+    userId: number,
+    meetingId: number,
+  ): Promise<MeetingUser | string> {
     return await this.meetingUserRepository.joinMeeting(userId, meetingId);
   }
 
