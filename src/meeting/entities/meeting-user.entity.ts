@@ -1,7 +1,7 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { MeetingUserDetail } from './meeting-user-detail.entity';
+import { Record } from '../../record/entities/record.entity';
 import { Meeting } from './meeting.entity';
 
 @Entity({ name: 'meeting_user' })
@@ -32,9 +32,6 @@ export class MeetingUser extends CoreEntity {
   @JoinColumn([{ name: 'user_id' }])
   users: User;
 
-  @OneToMany(
-    () => MeetingUserDetail,
-    (tbMeetingUserDetail) => tbMeetingUserDetail.meetingUser,
-  )
-  meetingUserDetails: MeetingUserDetail[];
+  @OneToMany(() => Record, (tbRecord) => tbRecord.meetingUser)
+  Records: Record[];
 }

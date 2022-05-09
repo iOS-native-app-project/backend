@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 import { MeetingUser } from 'src/meeting/entities/meeting-user.entity';
 import { Meeting } from 'src/meeting/entities/meeting.entity';
+import { Record } from '../../record/entities/record.entity';
 
 @Entity({ name: 'user' })
 export class User extends CoreEntityAndDelete {

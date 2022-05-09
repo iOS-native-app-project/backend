@@ -65,6 +65,12 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
     if (!transactionManager) {
       const user = await this.getMeetingByUserIdAndMeetingId(meetingId, userId);
       if (user) return '이미 참여중인 모임입니다.';
+      return this.save(
+        this.create({
+          meetingId,
+          userId,
+        }),
+      );
     }
     return transactionManager.save(
       transactionManager.create(MeetingUser, {

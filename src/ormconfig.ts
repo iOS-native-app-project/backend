@@ -1,9 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import dotenv from 'dotenv';
 import { Category } from './category/entities/category.entity';
-import { MeetingUserDetail } from './meeting/entities/meeting-user-detail.entity';
 import { MeetingUser } from './meeting/entities/meeting-user.entity';
 import { Meeting } from './meeting/entities/meeting.entity';
+import { Record } from './record/entities/record.entity';
 import { User } from './user/entities/user.entity';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -19,7 +19,7 @@ const connectionOptions: TypeOrmModuleOptions = {
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [User, Meeting, Category, MeetingUser, MeetingUserDetail],
+  entities: [User, Meeting, Record, Category, MeetingUser],
   autoLoadEntities: true,
   synchronize: isDevelopment ? true : false,
   logging: isDevelopment ? true : false,
