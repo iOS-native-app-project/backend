@@ -9,11 +9,12 @@ export class MeetingDetailRepository extends Repository<MeetingUserDetail> {
     endDate: Date,
   ) {
     return this.createQueryBuilder('meeting_user_detail')
-      .select('sum(value) as sum_value')
+      .select(['sum(value) as sum_value'])
       .where(
         `date BETWEEN '${startDate.toISOString()}' AND '${endDate.toISOString()}'`,
       )
       .andWhere('meeting_user_id = :id', { id })
+      .leftJoin('meeting_user_detail.meetingUser', 'meetingUser')
       .groupBy('meeting_user_id')
       .getRawOne();
   }

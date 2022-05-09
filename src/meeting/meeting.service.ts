@@ -1,9 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { checkDateFormat } from 'src/common/utility/check-format';
 import { UpdateResult } from 'typeorm';
-import { CreateMeetingDetailDto } from './dto/create-meeting-detail.dto';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { MeetingUserDetail } from './entities/meeting-user-detail.entity';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingDetailRepository } from './repositories/meeting-detail.repository';
@@ -91,21 +90,99 @@ export class MeetingService {
   // 모임 홈
   // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
   async getMeetingHome(id: number) {
-    const meetingData = await this.meetingRepository.getMeeting(id);
-    console.log(meetingData);
+    const meeting = await this.meetingRepository.getMeeting(id);
 
-    const meetingUser =
+    const meetingUsers =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
-    console.log(meetingUser);
+
+    // 모임 주기 계산
+    const data = await this.getMeetingData(
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
+    );
 
     // 멤버별 달성률 및 순위
+    const memberRate = await this.getMeetingUserRate(
+      meeting.targetAmount,
+      meetingUsers,
+      data.startDate,
+      data.endDate,
+    );
 
     // 모임 전체 달성률
+    const meetingRate = await this.getMeetingRate(
+      meeting.id,
+      meeting.targetAmount,
+      data.startDate,
+      data.endDate,
+    );
 
     return {
-      meetingData: meetingData,
+      meeting,
+      memberRate,
+      meetingData: {
+        startDate: checkDateFormat(data.startDate),
+        endDate: checkDateFormat(data.endDate),
+      },
     };
   }
+
+  // 모임 주기 계산
+  async getMeetingData(createdAt: Date, cycle: number, round: number) {
+    const startDate = new Date(createdAt);
+    const endDate = new Date(createdAt);
+
+    if (cycle == 0) {
+      startDate.setDate(startDate.getDate() + 1 * (round - 1));
+      endDate.setDate(endDate.getDate() + 1 * round);
+    } else if (cycle == 1) {
+      startDate.setDate(startDate.getDate() + 7 * (round - 1));
+      endDate.setDate(endDate.getDate() + 7 * round);
+    } else {
+      startDate.setDate(startDate.getDate() + 30 * (round - 1));
+      endDate.setDate(endDate.getDate() + 30 * round);
+    }
+
+    return {
+      startDate,
+      endDate,
+    };
+  }
+
+  // 멤버별 달성률 계산
+  async getMeetingUserRate(
+    targetAmount: number,
+    meetingUsers: MeetingUser[],
+    startDate: Date,
+    endDate: Date,
+  ) {
+    // eslint-disable-next-line prefer-const
+    let memberRate: { userId: number; rate: number }[] = [];
+    for (const meetingUser of meetingUsers) {
+      const rateData =
+        await this.meetingDetailRepository.getMeetingValueSumByMeetingUserId(
+          meetingUser.id,
+          startDate,
+          endDate,
+        );
+
+      memberRate.push({
+        userId: meetingUser.userId,
+        rate: rateData ? (rateData.sum_value / targetAmount) * 100 : 0,
+      });
+    }
+
+    return memberRate;
+  }
+
+  // 멤버별 달성률 계산
+  async getMeetingRate(
+    meetinfId: number,
+    targetAmount: number,
+    startDate: Date,
+    endDate: Date,
+  ) {}
 
   // 추천 신고 API
   // 0: recommand, 1: report
@@ -130,6 +207,7 @@ export class MeetingService {
   }
 
   // 모임 개설
+  // todo transaction 처리
   async createMeeting(
     userId: number,
     createMeetingDto: CreateMeetingDto,
@@ -156,16 +234,8 @@ export class MeetingService {
   }
 
   // 모임 참여
+  // todo 이미 참여 되있을 경우 메세지 출력
   async joinMeeting(userId: number, meetingId: number): Promise<MeetingUser> {
     return await this.meetingUserRepository.joinMeeting(userId, meetingId);
-  }
-
-  // 모임 기록하기
-  async createMeetingDetail(
-    createMeetingDetailDto: CreateMeetingDetailDto,
-  ): Promise<MeetingUserDetail> {
-    return await this.meetingDetailRepository.createMeetingDetail(
-      createMeetingDetailDto,
-    );
   }
 }
