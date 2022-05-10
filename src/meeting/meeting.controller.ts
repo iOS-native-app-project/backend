@@ -4,7 +4,7 @@ import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { User } from 'src/user/entities/user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { MeetingCategoryDto, ReportUserDto } from './dto/meeting.dto';
+import { CheckPasswordDto, MeetingCategoryDto, ReportUserDto } from './dto/meeting.dto';
 import { MeetingService } from './meeting.service';
 
 @ApiTags('Meeting')
@@ -104,12 +104,12 @@ export class MeetingController {
 
   // todo 비밀번호 검증
   @ApiOperation({ summary: '비밀번호 검증 API' })
+  @ApiBody({ type: CheckPasswordDto })
   @Post(':meetingId/check/password')
-  async checkPassword(
-    @GetUser() user: User,
+  async validatePassword(
     @Param('meetingId') meetingId: number,
-    @Body('password') password: number,
+    @Body('password') password: string,
   ) {
-    return;
+    return await this.meetingService.validatePassword(meetingId, password);
   }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class MeetingCategoryDto {
   @IsArray()
@@ -24,4 +24,13 @@ export class ReportUserDto {
     description: 'type 0: 추천, 1: 신고',
   })
   type: number;
+}
+
+export class CheckPasswordDto {
+  @IsString()
+  @ApiProperty({
+    example: '1234',
+    description: '비밀번호',
+  })
+  password: string;
 }

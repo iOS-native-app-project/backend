@@ -1,14 +1,15 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { checkDateFormat } from 'src/common/utility/check-format';
-import { CategoryService } from 'src/category/category.service';
-import { getManager, UpdateResult } from 'typeorm';
-import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { MeetingUser } from './entities/meeting-user.entity';
-import { Meeting } from './entities/meeting.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';
 import { RecordRepository } from 'src/record/repositories/record.repository';
+import { MeetingUser } from './entities/meeting-user.entity';
+import { Meeting } from './entities/meeting.entity';
+import { CategoryService } from 'src/category/category.service';
+import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { getManager, UpdateResult } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { checkDateFormat } from 'src/common/utility/check-format';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class MeetingService {
@@ -136,7 +137,7 @@ export class MeetingService {
     const meetingUsers =
       await this.meetingUserRepository.getMeetingUserByMeetingId(id);
     // 멤버별 달성률 및 순위
-    const memberRate = await this.getMeetingUserRate(
+    const memberRate = await this.calMemberRate(
       meeting.meeting_target_amount,
       meetingUsers,
       date.startDate,
@@ -144,12 +145,12 @@ export class MeetingService {
     );
 
     // 모임 전체 달성률
-    // const meetingRate = await this.getMeetingRate(
-    //   meeting.meeting_id,
-    //   meeting.meeting_target_amount,
-    //   date.startDate,
-    //   date.endDate,
-    // );
+    const meetingRate = await this.calMeetingRate(
+      meeting.meeting_id,
+      meeting.meeting_target_amount,
+      date.startDate,
+      date.endDate,
+    );
 
     return {
       meeting,
@@ -181,7 +182,7 @@ export class MeetingService {
   }
 
   // 멤버별 달성률 계산
-  async getMeetingUserRate(
+  async calMemberRate(
     targetAmount: number,
     meetingUsers: MeetingUser[],
     startDate: string,
@@ -207,7 +208,7 @@ export class MeetingService {
   }
 
   // 모임 달성률 계산
-  async getMeetingRate(
+  async calMeetingRate(
     meetinfId: number,
     targetAmount: number,
     startDate: string,
@@ -279,5 +280,17 @@ export class MeetingService {
       else meeting['password'] = 'false';
     }
     return meetings;
+  }
+
+  // password validation
+  async validatePassword(meetingId: number, password: string) {
+    const meeting = await this.meetingRepository.findOne({
+      id: meetingId,
+    });
+
+    if (meeting.password)
+      return await bcrypt.compare(password, meeting.password);
+
+    throw new NotFoundException('비밀번호가 존재하지 않는 모임입니다.');
   }
 }
