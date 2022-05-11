@@ -4,7 +4,11 @@ import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { User } from 'src/user/entities/user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { CheckPasswordDto, MeetingCategoryDto, ReportUserDto } from './dto/meeting.dto';
+import {
+  CheckPasswordDto,
+  MeetingCategoryDto,
+  ReportUserDto,
+} from './dto/meeting.dto';
 import { MeetingService } from './meeting.service';
 
 @ApiTags('Meeting')
@@ -18,6 +22,12 @@ export class MeetingController {
   @Get('main')
   async getMainMeeting(@GetUser() user: User) {
     return await this.meetingService.getMainMeeting(user.id);
+  }
+
+  @ApiOperation({ summary: 'A200: 추천 모임' })
+  @Get('main/recommend')
+  async recommendMeeting() {
+    return await this.meetingService.recommendMeeting();
   }
 
   @ApiOperation({ summary: 'A300: 모임 첫 화면 API' })
@@ -74,15 +84,6 @@ export class MeetingController {
     );
   }
 
-  @ApiOperation({ summary: 'A304: 멤버 기록 API' })
-  @Get(':meetingId/member/:memberId')
-  async getMemberRecord(
-    @Param('meetingId') meetingId: number,
-    @Param('memberId') memberId: number,
-  ) {
-    return await this.meetingService.getMemberRecord(meetingId, memberId);
-  }
-
   @ApiOperation({ summary: 'A303: 모임 개설 API' })
   @ApiBody({ type: CreateMeetingDto })
   @Post('')
@@ -102,7 +103,6 @@ export class MeetingController {
     return await this.meetingService.joinMeeting(user.id, meetingId);
   }
 
-  // todo 비밀번호 검증
   @ApiOperation({ summary: '비밀번호 검증 API' })
   @ApiBody({ type: CheckPasswordDto })
   @Post(':meetingId/check/password')

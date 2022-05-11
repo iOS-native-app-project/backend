@@ -4,7 +4,6 @@ import { MeetingRepository } from './repositories/meeting.repository';
 import { RecordRepository } from 'src/record/repositories/record.repository';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { Meeting } from './entities/meeting.entity';
-import { CategoryService } from 'src/category/category.service';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { getManager, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,8 +19,6 @@ export class MeetingService {
     private meetingUserRepository: MeetingUserRepository,
     @InjectRepository(RecordRepository)
     private recordRepository: RecordRepository,
-
-    private readonly categoryService: CategoryService,
   ) {}
 
   // 매인 홈
@@ -30,8 +27,11 @@ export class MeetingService {
     const myMeetings = await this.meetingUserRepository.getMeetingByUserId(
       userId,
     );
-    const meetings = this.checkPassword(myMeetings);
-    const categories = await this.categoryService.getCategory();
+    return this.checkPassword(myMeetings);
+  }
+
+  // 추천 모임
+  async recommendMeeting() {
     const recommendMeetings = await this.meetingRepository.getAll();
 
     for (const recommendMeeting of recommendMeetings) {
@@ -40,12 +40,6 @@ export class MeetingService {
       });
       recommendMeeting['memberCount'] = memberCount;
     }
-
-    return {
-      meetings,
-      categories,
-      recommendMeetings,
-    };
   }
 
   // 모임 첫 화면
@@ -53,9 +47,6 @@ export class MeetingService {
     const meetingInfos = await this.meetingRepository.findAll();
     const meetings = this.checkPassword(meetingInfos);
 
-    if (meetingInfos.length === 0) {
-      return '검색 결과가 없습니다.';
-    }
     return await this.setJoinData(userId, meetings);
   }
 
@@ -69,9 +60,6 @@ export class MeetingService {
     );
     const meetings = this.checkPassword(meetingInfos);
 
-    if (meetingInfos.length === 0) {
-      return '검색 결과가 없습니다.';
-    }
     return await this.setJoinData(userId, meetings);
   }
 
@@ -85,9 +73,6 @@ export class MeetingService {
     );
     const meetings = this.checkPassword(meetingInfos);
 
-    if (meetingInfos.length === 0) {
-      return '검색 결과가 없습니다.';
-    }
     return await this.setJoinData(userId, meetings);
   }
 
@@ -97,19 +82,12 @@ export class MeetingService {
     );
 
     for (const meetingInfo of meetingInfos) {
-      const memberCount = await this.meetingUserRepository.count({
+      meetingInfo['memberCount'] = await this.meetingUserRepository.count({
         meetingId: meetingInfo.id,
       });
-      meetingInfo['memberCount'] = memberCount;
-      meetingInfo['join'] = false;
-      if (myMeeting) {
-        for (let i = 0; i < myMeeting.length; i++) {
-          if (meetingInfo.id == myMeeting[i].meetingId) {
-            meetingInfo['join'] = true;
-            break;
-          }
-        }
-      }
+      meetingInfo['join'] = myMeeting.some(
+        (meeting) => meetingInfo.id == meeting.id,
+      );
     }
     return meetingInfos;
   }
@@ -229,14 +207,6 @@ export class MeetingService {
       userId,
       type,
     );
-  }
-
-  // 멤버 기록 보기
-  async getMemberRecord(meetingId: number, memberId: number) {
-    return {
-      status: 'SUCCESS',
-      code: 200,
-    };
   }
 
   // 모임 개설
