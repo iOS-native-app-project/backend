@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, TransactionManager, UpdateResult } from 'typeorm';
+import { EntityManager, TransactionManager } from 'typeorm';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 

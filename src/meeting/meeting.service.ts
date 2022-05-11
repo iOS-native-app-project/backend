@@ -7,6 +7,7 @@ import { RecordRepository } from 'src/record/repositories/record.repository';
 import { getManager } from 'typeorm';
 import { MeetingUser } from '../meeting-user/entities/meeting-user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { MeetingHomeOutput } from './dto/meeting-output.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingRepository } from './repositories/meeting.repository';
 
@@ -23,13 +24,14 @@ export class MeetingService {
 
   // 매인 홈
   // todo 진행률 추가
-  async getMainMeeting(userId: number) {
+  async getMainMeeting(userId: number): Promise<Meeting[]> {
     const myMeetings = await this.meetingUserService.getMeetingByUserId(userId);
     return this.checkPassword(myMeetings);
   }
 
   // 추천 모임
-  async recommendMeeting() {
+  // todo 어떤 추천을 해줘야 하나
+  async recommendMeeting(): Promise<any[]> {
     const recommendMeetings = await this.meetingRepository.getAll();
 
     for (const recommendMeeting of recommendMeetings) {
@@ -75,7 +77,10 @@ export class MeetingService {
     return await this.setJoinData(userId, meetings);
   }
 
-  async setJoinData(userId: number, meetingInfos: Meeting[]) {
+  async setJoinData(
+    userId: number,
+    meetingInfos: Meeting[],
+  ): Promise<Meeting[]> {
     const myMeeting = await this.meetingUserService.getMeetingByUserId(userId);
 
     for (const meetingInfo of meetingInfos) {
@@ -91,7 +96,8 @@ export class MeetingService {
 
   // 모임 홈
   // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
-  async getMeetingHome(userId: number, id: number) {
+  // todod 모임 전체 달성률
+  async getMeetingHome(userId: number, id: number): Promise<MeetingHomeOutput> {
     // user validation
     const user = await this.meetingUserService.getMeetingByUserIdAndMeetingId(
       id,
@@ -134,7 +140,11 @@ export class MeetingService {
   }
 
   // 모임 주기 계산
-  async calMeetingDate(createdAt: Date, cycle: number, round: number) {
+  async calMeetingDate(
+    createdAt: Date,
+    cycle: number,
+    round: number,
+  ): Promise<{ startDate: string; endDate: string }> {
     const startDate = new Date(createdAt);
     const endDate = new Date(createdAt);
 
@@ -161,7 +171,7 @@ export class MeetingService {
     meetingUsers: MeetingUser[],
     startDate: string,
     endDate: string,
-  ) {
+  ): Promise<{ userId: number; rate: number }[]> {
     // eslint-disable-next-line prefer-const
     let memberRate: { userId: number; rate: number }[] = [];
     for (const meetingUser of meetingUsers) {
@@ -181,7 +191,7 @@ export class MeetingService {
     return memberRate;
   }
 
-  // todo 모임 달성률 계산
+  // 모임 달성률 계산
   async calMeetingRate(
     meetinfId: number,
     targetAmount: number,
@@ -227,7 +237,10 @@ export class MeetingService {
   }
 
   // password validation
-  async validatePassword(meetingId: number, password: string) {
+  async validatePassword(
+    meetingId: number,
+    password: string,
+  ): Promise<boolean> {
     const meeting = await this.meetingRepository.findOne({
       id: meetingId,
     });
