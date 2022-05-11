@@ -1,32 +1,30 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
-import { MeetingUserRepository } from './repositories/meeting-user.repository';
-import { MeetingRepository } from './repositories/meeting.repository';
-import { RecordRepository } from 'src/record/repositories/record.repository';
-import { MeetingUser } from './entities/meeting-user.entity';
-import { Meeting } from './entities/meeting.entity';
-import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { getManager, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { checkDateFormat } from 'src/common/utility/check-format';
 import * as bcrypt from 'bcrypt';
+import { checkDateFormat } from 'src/common/utility/check-format';
+import { MeetingUserService } from 'src/meeting-user/meeting-user.service';
+import { RecordRepository } from 'src/record/repositories/record.repository';
+import { getManager } from 'typeorm';
+import { MeetingUser } from '../meeting-user/entities/meeting-user.entity';
+import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { Meeting } from './entities/meeting.entity';
+import { MeetingRepository } from './repositories/meeting.repository';
 
 @Injectable()
 export class MeetingService {
   constructor(
     @InjectRepository(MeetingRepository)
     private meetingRepository: MeetingRepository,
-    @InjectRepository(MeetingUserRepository)
-    private meetingUserRepository: MeetingUserRepository,
     @InjectRepository(RecordRepository)
     private recordRepository: RecordRepository,
+
+    private readonly meetingUserService: MeetingUserService,
   ) {}
 
   // 매인 홈
   // todo 진행률 추가
   async getMainMeeting(userId: number) {
-    const myMeetings = await this.meetingUserRepository.getMeetingByUserId(
-      userId,
-    );
+    const myMeetings = await this.meetingUserService.getMeetingByUserId(userId);
     return this.checkPassword(myMeetings);
   }
 
@@ -35,11 +33,12 @@ export class MeetingService {
     const recommendMeetings = await this.meetingRepository.getAll();
 
     for (const recommendMeeting of recommendMeetings) {
-      const memberCount = await this.meetingUserRepository.count({
-        meetingId: recommendMeeting.meeting_id,
-      });
+      const memberCount = await this.meetingUserService.getMemberCount(
+        recommendMeeting.meetingId,
+      );
       recommendMeeting['memberCount'] = memberCount;
     }
+    return recommendMeetings;
   }
 
   // 모임 첫 화면
@@ -77,14 +76,12 @@ export class MeetingService {
   }
 
   async setJoinData(userId: number, meetingInfos: Meeting[]) {
-    const myMeeting = await this.meetingUserRepository.getMeetingByUserId(
-      userId,
-    );
+    const myMeeting = await this.meetingUserService.getMeetingByUserId(userId);
 
     for (const meetingInfo of meetingInfos) {
-      meetingInfo['memberCount'] = await this.meetingUserRepository.count({
-        meetingId: meetingInfo.id,
-      });
+      meetingInfo['memberCount'] = await this.meetingUserService.getMemberCount(
+        meetingInfo.id,
+      );
       meetingInfo['join'] = myMeeting.some(
         (meeting) => meetingInfo.id == meeting.id,
       );
@@ -96,11 +93,10 @@ export class MeetingService {
   // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
   async getMeetingHome(userId: number, id: number) {
     // user validation
-    const user =
-      await this.meetingUserRepository.getMeetingByUserIdAndMeetingId(
-        id,
-        userId,
-      );
+    const user = await this.meetingUserService.getMeetingByUserIdAndMeetingId(
+      id,
+      userId,
+    );
     if (!user) throw new NotFoundException('모임에 참여하지 않은 유저입니다.');
 
     const meeting = await this.meetingRepository.getMeetingById(id);
@@ -113,7 +109,7 @@ export class MeetingService {
     );
 
     const meetingUsers =
-      await this.meetingUserRepository.getMeetingUserByMeetingId(id);
+      await this.meetingUserService.getMeetingUserByMeetingId(id);
     // 멤버별 달성률 및 순위
     const memberRate = await this.calMemberRate(
       meeting.meeting_target_amount,
@@ -185,7 +181,7 @@ export class MeetingService {
     return memberRate;
   }
 
-  // 모임 달성률 계산
+  // todo 모임 달성률 계산
   async calMeetingRate(
     meetinfId: number,
     targetAmount: number,
@@ -193,20 +189,6 @@ export class MeetingService {
     endDate: string,
   ) {
     return;
-  }
-
-  // 추천 신고 API
-  // 0: recommand, 1: report
-  async setUserforReport(
-    meetingId: number,
-    userId: number,
-    type: number,
-  ): Promise<false | UpdateResult> {
-    return await this.meetingUserRepository.setUserforReport(
-      meetingId,
-      userId,
-      type,
-    );
   }
 
   // 모임 개설
@@ -218,7 +200,7 @@ export class MeetingService {
           userId,
           createMeetingDto,
         );
-        await this.meetingUserRepository.joinMeeting(
+        await this.meetingUserService.joinMeeting(
           userId,
           meeting.id,
           transactionManager,
@@ -233,14 +215,6 @@ export class MeetingService {
           500,
         );
       });
-  }
-
-  // 모임 참여
-  async joinMeeting(
-    userId: number,
-    meetingId: number,
-  ): Promise<MeetingUser | string> {
-    return await this.meetingUserRepository.joinMeeting(userId, meetingId);
   }
 
   // 모임 password 유무 확인

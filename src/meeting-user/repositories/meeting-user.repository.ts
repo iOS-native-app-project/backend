@@ -44,13 +44,12 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       .getOne();
   }
 
-  async setUserforReport(meetingId: number, userId: number, type: number) {
+  async setUserforReport(type: number, member: MeetingUser) {
     try {
-      const user = await this.getMeetingByUserIdAndMeetingId(meetingId, userId);
-
       if (type && type == 1) {
-        return this.update(user.id, { report: user.report + 1 });
-      } else return this.update(user.id, { recommand: user.recommand + 1 });
+        await this.update(member.id, { report: member.report + 1 });
+      } else await this.update(member.id, { recommand: member.recommand + 1 });
+      return true;
     } catch (error) {
       console.log(error);
       return false;

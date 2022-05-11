@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Category } from 'src/category/entities/category.entity';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
-import { MeetingUser } from './meeting-user.entity';
+import { MeetingUser } from '../../meeting-user/entities/meeting-user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
