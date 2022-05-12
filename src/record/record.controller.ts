@@ -15,8 +15,8 @@ import { User } from '../user/entities/user.entity';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -33,28 +33,33 @@ export class RecordController {
   @ApiBody({
     type: CreateRecordDto,
   })
-  @ApiOkResponse({
-    description: '성공',
-    schema: {
-      example: {
-        success: true,
-        statusCode: 201,
-      },
-    },
-  })
   @Post()
   @UseGuards(JwtAuthGuard)
   create(
-    @GetUser() user: User,
+    @GetUser() { id: userId }: User,
     @Param('meetingId') meetingId: number,
     @Body() createRecordDto: CreateRecordDto,
   ) {
-    return this.recordService.create(createRecordDto, meetingId, user);
+    return this.recordService.create({ createRecordDto, meetingId, userId });
   }
 
+  @ApiOperation({
+    summary: '기록 조회',
+    description: '년월을 이용하여 기록을 조회합니다.',
+  })
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(@GetUser() user: User, @Param('meetingId') meetingId: number) {
-    return this.recordService.findAll(meetingId, user);
+  findByYearAndMonth(
+    @GetUser() { id: userId }: User,
+    @Param('meetingId') meetingId: number,
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.recordService.findByYearAndMonth({
+      year,
+      month,
+      meetingId,
+      userId,
+    });
   }
 }
