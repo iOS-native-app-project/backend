@@ -37,10 +37,10 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       .getMany();
   }
 
-  async getMeetingByUserIdAndMeetingId(meetingId: number, userId: number) {
+  async getMeetingByUserIdAndMeetingId(userId: number, meetingId: number) {
     return await this.createQueryBuilder('meeting_user')
-      .where('meeting_user.meetingId = :meetingId', { meetingId })
       .andWhere('meeting_user.userId = :userId', { userId })
+      .where('meeting_user.meetingId = :meetingId', { meetingId })
       .getOne();
   }
 

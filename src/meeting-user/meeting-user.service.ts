@@ -50,8 +50,8 @@ export class MeetingUserService {
 
   async getMeetingByUserIdAndMeetingId(id: number, userId: number) {
     return await this.meetingUserRepository.getMeetingByUserIdAndMeetingId(
-      id,
       userId,
+      id,
     );
   }
 
