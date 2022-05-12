@@ -4,8 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+<<<<<<< Updated upstream
 import { MeetingUserRepository } from '../meeting/repositories/meeting-user.repository';
 import { User } from '../user/entities/user.entity';
+=======
+import { MeetingUserRepository } from '../meeting-user/repositories/meeting-user.repository';
+>>>>>>> Stashed changes
 import { CreateRecordDto } from './dto/create-record.dto';
 import { RecordRepository } from './repositories/record.repository';
 
@@ -18,51 +22,81 @@ export class RecordService {
     @InjectRepository(MeetingUserRepository)
     private meetingUserRepository: MeetingUserRepository,
   ) {}
-  async create(
-    createRecordDto: CreateRecordDto,
-    meetingId: number,
-    user: User,
-  ) {
-    const meetingUserId = await this.validation(user.id, meetingId);
-    const duplicate = await this.duplicate(
+
+  async create({
+    createRecordDto,
+    meetingId,
+    userId,
+  }: {
+    createRecordDto: CreateRecordDto;
+    meetingId: number;
+    userId: number;
+  }) {
+    const meetingUserId = await this.validation({ userId, meetingId });
+
+    const duplicate = await this.duplicate({
       meetingId,
-      user.id,
-      createRecordDto.date,
-    );
+      meetingUserId,
+      date: createRecordDto.date,
+    });
 
     if (duplicate) {
       throw new BadRequestException('Already registered.');
     }
-    await this.recordRepository.createSave(
+
+    await this.recordRepository.createSave({
       createRecordDto,
       meetingId,
       meetingUserId,
-    );
+    });
 
     return;
   }
 
-  async findAll(meetingId: number, user: User) {
-    const meetingUserId = await this.validation(user.id, meetingId);
+  async findByYearAndMonth({
+    meetingId,
+    userId,
+    year,
+    month,
+  }: {
+    meetingId: number;
+    userId: number;
+    year: number;
+    month: number;
+  }) {
+    const meetingUserId = await this.validation({ userId, meetingId });
 
-    return this.recordRepository.findAll(meetingId, meetingUserId);
-  }
-
-  async duplicate(meetingId: number, userId: number, date: string) {
-    const record = await this.recordRepository.findByDate(
+    return this.recordRepository.findRecords({
       meetingId,
-      userId,
-      date,
-    );
-
-    return record ? true : false;
+      meetingUserId,
+      year,
+      month,
+    });
   }
 
-  async validation(userId: number, meetingId) {
+  async duplicate({
+    meetingId,
+    meetingUserId,
+    date,
+  }: {
+    meetingId: number;
+    meetingUserId: number;
+    date: string;
+  }) {
+    const record = await this.recordRepository.findRecords({
+      meetingId,
+      meetingUserId,
+      date,
+    });
+
+    return record.length > 0 ? true : false;
+  }
+
+  async validation({ userId, meetingId }: { userId: number; meetingId }) {
     const meetingUser =
       await this.meetingUserRepository.getMeetingByUserIdAndMeetingId(
-        userId,
         meetingId,
+        userId,
       );
 
     if (!meetingUser) {
