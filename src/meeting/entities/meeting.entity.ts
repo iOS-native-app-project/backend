@@ -1,9 +1,19 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from 'src/category/entities/category.entity';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { MeetingUser } from './meeting-user.entity';
+import { MeetingUser } from '../../meeting-user/entities/meeting-user.entity';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Entity({ name: 'meeting' })
 export class Meeting extends CoreEntity {
@@ -31,6 +41,7 @@ export class Meeting extends CoreEntity {
   @ApiProperty({
     example: '모임 설명',
     description: '모임 설명',
+    required: false,
   })
   @Column('varchar', {
     name: 'descript',
@@ -57,6 +68,7 @@ export class Meeting extends CoreEntity {
   @ApiProperty({
     example: '1234',
     description: '모임 비밀번호',
+    required: false,
   })
   @Column('varchar', {
     name: 'password',
@@ -100,6 +112,13 @@ export class Meeting extends CoreEntity {
   })
   targetAmount: number;
 
+  @Column('int', {
+    name: 'round',
+    comment: '모임의 차수',
+    default: 1,
+  })
+  round: number;
+
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meetings)
   meetingUsers: MeetingUser[];
 
@@ -116,4 +135,17 @@ export class Meeting extends CoreEntity {
   })
   @JoinColumn([{ name: 'owner_id' }])
   users: User;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword(): Promise<void> {
+    if (this.password) {
+      try {
+        this.password = await bcrypt.hash(this.password, 10);
+      } catch (e) {
+        console.log(e);
+        throw new InternalServerErrorException();
+      }
+    }
+  }
 }

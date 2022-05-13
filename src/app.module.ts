@@ -9,6 +9,7 @@ import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { MeetingModule } from './meeting/meeting.module';
 import { CategoryModule } from './category/category.module';
 import { RecordModule } from './record/record.module';
+import { MeetingUserModule } from './meeting-user/meeting-user.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { RecordModule } from './record/record.module';
     CategoryModule,
     // UploadModule,
     RecordModule,
+    MeetingUserModule,
   ],
   controllers: [],
   providers: [],

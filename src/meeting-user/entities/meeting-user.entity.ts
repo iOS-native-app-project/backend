@@ -2,7 +2,7 @@ import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Record } from '../../record/entities/record.entity';
-import { Meeting } from './meeting.entity';
+import { Meeting } from '../../meeting/entities/meeting.entity';
 
 @Entity({ name: 'meeting_user' })
 export class MeetingUser extends CoreEntity {

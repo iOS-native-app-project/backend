@@ -1,21 +1,22 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CategoryRepository } from 'src/category/repositories/category.repository';
+import { RecordRepository } from 'src/record/repositories/record.repository';
 import { MeetingController } from './meeting.controller';
 import { MeetingService } from './meeting.service';
-import { MeetingUserRepository } from './repositories/meeting-user.repository';
+import { MeetingUserRepository } from '../meeting-user/repositories/meeting-user.repository';
 import { MeetingRepository } from './repositories/meeting.repository';
+import { MeetingUserService } from 'src/meeting-user/meeting-user.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       MeetingRepository,
       MeetingUserRepository,
-      CategoryRepository,
+      RecordRepository,
     ]),
   ],
   controllers: [MeetingController],
-  providers: [MeetingService],
+  providers: [MeetingService, MeetingUserService],
   exports: [MeetingService],
 })
 export class MeetingModule {}
