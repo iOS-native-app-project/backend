@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
-import { MeetingUser } from 'src/meeting/entities/meeting-user.entity';
+import { MeetingUser } from 'src/meeting-user/entities/meeting-user.entity';
 import { Meeting } from 'src/meeting/entities/meeting.entity';
 import { Record } from '../../record/entities/record.entity';
 

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { MeetingUser } from '../../meeting/entities/meeting-user.entity';
+import { MeetingUser } from '../../meeting-user/entities/meeting-user.entity';
 import { Meeting } from '../../meeting/entities/meeting.entity';
 
 @Entity({ name: 'record' })
@@ -22,6 +22,7 @@ export class Record extends CoreEntity {
   })
   @Column('varchar', { name: 'date', length: 10 })
   date: string;
+
   @ApiProperty({
     example: 1,
     description: '상세달성수치',
