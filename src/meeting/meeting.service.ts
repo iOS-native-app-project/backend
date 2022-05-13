@@ -193,7 +193,7 @@ export class MeetingService {
 
   // 모임 달성률 계산
   async calMeetingRate(
-    meetinfId: number,
+    meetingId: number,
     targetAmount: number,
     startDate: string,
     endDate: string,

@@ -1,3 +1,4 @@
+import { HttpException } from '@nestjs/common';
 import {
   EntityManager,
   EntityRepository,
@@ -47,12 +48,20 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
   async setUserforReport(type: number, member: MeetingUser) {
     try {
       if (type && type == 1) {
-        await this.update(member.id, { report: member.report + 1 });
-      } else await this.update(member.id, { recommand: member.recommand + 1 });
-      return true;
+        return await this.update(member.id, { report: member.report + 1 });
+      } else
+        return await this.update(member.id, {
+          recommand: member.recommand + 1,
+        });
     } catch (error) {
       console.log(error);
-      return false;
+      throw new HttpException(
+        {
+          message: '실패',
+          error: error,
+        },
+        500,
+      );
     }
   }
 

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, TransactionManager } from 'typeorm';
+import { EntityManager, TransactionManager, UpdateResult } from 'typeorm';
 import { MeetingUser } from './entities/meeting-user.entity';
 import { MeetingUserRepository } from './repositories/meeting-user.repository';
 
@@ -30,7 +30,7 @@ export class MeetingUserService {
     meetingId: number,
     userId: number,
     type: number,
-  ): Promise<boolean> {
+  ): Promise<UpdateResult> {
     const member = await this.getMeetingByUserIdAndMeetingId(meetingId, userId);
     if (!member) throw new NotFoundException('해당 멤버를 찾을 수 없습니다.');
 
