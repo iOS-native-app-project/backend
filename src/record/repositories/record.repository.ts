@@ -4,33 +4,46 @@ import { Record } from '../entities/record.entity';
 
 @EntityRepository(Record)
 export class RecordRepository extends Repository<Record> {
-  async findAll(meetingId: number, meetingUserId: number) {
-    return await this.createQueryBuilder('record')
-      .where('meeting_user_id = :meetingUserId and meeting_id = :meetingId', {
-        meetingUserId,
-        meetingId,
-      })
-      .getMany();
+  async findRecords({
+    meetingUserId,
+    meetingId,
+    year,
+    month,
+    date,
+  }: {
+    meetingUserId: number;
+    meetingId?: number;
+    year?: number;
+    month?: number;
+    userId?: number;
+    date?: string;
+  }): Promise<Record[]> {
+    const qb = this.createQueryBuilder('record').where(
+      'record.meeting_user_id = :meetingUserId',
+      { meetingUserId },
+    );
+
+    if (meetingId) qb.andWhere('record.meeting_id = :meetingId', { meetingId });
+
+    if (date) qb.andWhere('record.date = :date', { date });
+
+    if (year && month)
+      qb.andWhere('record.date like :date', {
+        date: `${year}-${String(month).padStart(2, '0')}%`,
+      });
+
+    return qb.getMany();
   }
 
-  async findByDate(meetingId: number, meetingUserId: number, date: string) {
-    return await this.createQueryBuilder('record')
-      .where(
-        'meeting_user_id = :meetingUserId and meeting_id = :meetingId and date = :date',
-        {
-          meetingUserId,
-          meetingId,
-          date,
-        },
-      )
-      .getOne();
-  }
-
-  async createSave(
-    createRecordDto: CreateRecordDto,
-    meetingId: number,
-    meetingUserId: number,
-  ) {
+  async createSave({
+    createRecordDto,
+    meetingId,
+    meetingUserId,
+  }: {
+    createRecordDto: CreateRecordDto;
+    meetingId: number;
+    meetingUserId: number;
+  }): Promise<Record> {
     return this.save(
       this.create({
         ...createRecordDto,
