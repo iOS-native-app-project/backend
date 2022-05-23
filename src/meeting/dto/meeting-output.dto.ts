@@ -2,7 +2,6 @@ import { Meeting } from '../entities/meeting.entity';
 
 export class MeetingHomeOutput {
   meeting: Meeting;
-  // meetingDate: MeetingDate;
 }
 
 export class MeetingDate {

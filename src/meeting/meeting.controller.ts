@@ -81,6 +81,15 @@ export class MeetingController {
     return await this.meetingService.calMeetingRate(user.id, meetingId);
   }
 
+  @ApiOperation({ summary: '나의 달성률' })
+  @Get(':meetingId/my/rate')
+  async getMyRate(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+  ) {
+    return await this.meetingService.calMyRate(user.id, meetingId);
+  }
+
   @ApiOperation({ summary: 'A303: 모임 개설 API' })
   @ApiBody({ type: CreateMeetingDto })
   @Post('')

@@ -165,7 +165,7 @@ export class MeetingService {
     for (const meetingUser of meetingUsers[0]) {
       const rateData =
         await this.recordRepository.getMeetingValueSumByMeetingUserId(
-          meetingUser.id,
+          meetingUser.userId,
           date.startDate,
           date.endDate,
         );
@@ -220,6 +220,33 @@ export class MeetingService {
       meetingId,
     );
     return rateData ? (rateData.sum_value / achievement) * 100 : 0;
+  }
+
+  // 나의 달성률 계산
+  async calMyRate(userId: number, meetingId: number): Promise<number> {
+    await this.validateUser(meetingId, userId);
+
+    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+
+    // 모임 주기 계산
+    const date = await this.calMeetingDate(
+      meeting.meeting_created_at,
+      meeting.meeting_cycle,
+      meeting.meeting_round,
+    );
+
+    const rateData =
+      await this.recordRepository.getMeetingValueSumByMeetingUserId(
+        userId,
+        date.startDate,
+        date.endDate,
+      );
+
+    const rate = rateData
+      ? (rateData.sum_value / meeting.meeting_target_amount) * 100
+      : 0;
+
+    return rate;
   }
 
   // 모임 개설
