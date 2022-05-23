@@ -63,6 +63,33 @@ export class MeetingController {
     return await this.meetingService.getMeetingHome(user.id, meetingId);
   }
 
+  @ApiOperation({ summary: '멤버별 달성률' })
+  @Get(':meetingId/member/rate')
+  async getMemberRate(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+  ) {
+    return await this.meetingService.calMemberRate(user.id, meetingId);
+  }
+
+  @ApiOperation({ summary: '모임 전체 달성률' })
+  @Get(':meetingId/rate')
+  async getMeetingRate(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+  ) {
+    return await this.meetingService.calMeetingRate(user.id, meetingId);
+  }
+
+  @ApiOperation({ summary: '나의 달성률' })
+  @Get(':meetingId/my/rate')
+  async getMyRate(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+  ) {
+    return await this.meetingService.calMyRate(user.id, meetingId);
+  }
+
   @ApiOperation({ summary: 'A303: 모임 개설 API' })
   @ApiBody({ type: CreateMeetingDto })
   @Post('')
