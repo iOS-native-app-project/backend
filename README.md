@@ -53,10 +53,14 @@ JWT_REFRESH_TOKEN_SECRET=jaksim@
 JWT_REFRESH_TOKEN_EXPIRESIN=7d
 ```
 
+## 데이터베이스 ERD
+
+![jaksim_20220524_084831](https://user-images.githubusercontent.com/66250890/169922037-0c65c846-e7f0-48d1-b566-8b0be28e990e.png)
+
+
+
 ## 프로젝트 데모
 
 구현중
 
-## 데이터베이스 ERD
 
-구현중
