@@ -1,5 +1,6 @@
 import {
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -14,7 +15,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleRequest(err, user, info) {
     if (err || !user) {
-      throw err || new UnauthorizedException('Invalid or Missing JWT token.');
+      throw err || info.message === 'jwt expired'
+        ? new ForbiddenException('Expired JWT token.')
+        : new UnauthorizedException('Invalid or Missing JWT token.');
     }
     return user;
   }
