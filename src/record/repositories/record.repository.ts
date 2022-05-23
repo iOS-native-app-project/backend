@@ -53,4 +53,12 @@ export class RecordRepository extends Repository<Record> {
       .groupBy('meeting_user_id')
       .getRawOne();
   }
+
+  getMeetingValueSum(startDate: string, endDate: string, id: number) {
+    return this.createQueryBuilder('record')
+      .select(['sum(value) as sum_value'])
+      .where(`date BETWEEN '${startDate}' AND '${endDate}'`)
+      .andWhere('meeting_id = :id', { id })
+      .getRawOne();
+  }
 }

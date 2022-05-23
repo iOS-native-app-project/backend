@@ -24,6 +24,7 @@ export class MeetingService {
 
   // 매인 홈
   // todo 진행률 추가
+  // todo 오늘의 한마디
   async getMainMeeting(userId: number): Promise<Meeting[]> {
     const myMeetings = await this.meetingUserService.getMeetingByUserId(userId);
     return this.checkPassword(myMeetings);
@@ -95,8 +96,6 @@ export class MeetingService {
   }
 
   // 모임 홈
-  // 멤버 프로필사진, 닉네임, 달성률, 추천, 신고
-  // todod 모임 전체 달성률
   async getMeetingHome(userId: number, id: number): Promise<MeetingHomeOutput> {
     // user validation
     const user = await this.meetingUserService.getMeetingByUserIdAndMeetingId(
@@ -116,10 +115,11 @@ export class MeetingService {
 
     const meetingUsers =
       await this.meetingUserService.getMeetingUserByMeetingId(id);
+
     // 멤버별 달성률 및 순위
     const memberRate = await this.calMemberRate(
       meeting.meeting_target_amount,
-      meetingUsers,
+      meetingUsers[0],
       date.startDate,
       date.endDate,
     );
@@ -130,11 +130,13 @@ export class MeetingService {
       meeting.meeting_target_amount,
       date.startDate,
       date.endDate,
+      meetingUsers[1],
     );
 
     return {
       meeting,
       memberRate,
+      meetingRate,
       meetingDate: date,
     };
   }
@@ -171,9 +173,16 @@ export class MeetingService {
     meetingUsers: MeetingUser[],
     startDate: string,
     endDate: string,
-  ): Promise<{ userId: number; rate: number }[]> {
+  ) {
     // eslint-disable-next-line prefer-const
-    let memberRate: { userId: number; rate: number }[] = [];
+    let memberRate: {
+      userId: number;
+      nickname: string;
+      recommand: number;
+      report: number;
+      rate: number;
+    }[] = [];
+
     for (const meetingUser of meetingUsers) {
       const rateData =
         await this.recordRepository.getMeetingValueSumByMeetingUserId(
@@ -184,9 +193,13 @@ export class MeetingService {
 
       memberRate.push({
         userId: meetingUser.userId,
+        nickname: meetingUser.users.nickname,
+        recommand: meetingUser.recommand,
+        report: meetingUser.report,
         rate: rateData ? (rateData.sum_value / targetAmount) * 100 : 0,
       });
     }
+    memberRate.sort((a, b) => b.rate - a.rate);
 
     return memberRate;
   }
@@ -197,8 +210,18 @@ export class MeetingService {
     targetAmount: number,
     startDate: string,
     endDate: string,
-  ) {
-    return;
+    memberCount: number,
+  ): Promise<number> {
+    // 모임의 목표 달성률
+    const achievement = memberCount * targetAmount;
+    // 멤버 달성률 총합
+    const rateData = await this.recordRepository.getMeetingValueSum(
+      startDate,
+      endDate,
+      meetingId,
+    );
+    const data = rateData ? (rateData.sum_value / achievement) * 100 : 0;
+    return data;
   }
 
   // 모임 개설

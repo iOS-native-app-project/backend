@@ -20,7 +20,7 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
     return await this.createQueryBuilder('meeting_user')
       .leftJoinAndSelect('meeting_user.users', 'user')
       .where('meeting_user.meetingId = :id', { id })
-      .getMany();
+      .getManyAndCount();
   }
 
   async getMeetingByUserId(userId: number) {

@@ -3,6 +3,7 @@ import { Meeting } from '../entities/meeting.entity';
 export class MeetingHomeOutput {
   meeting: Meeting;
   memberRate: MemberRate[];
+  meetingRate: number;
   meetingDate: MeetingDate;
 }
 
