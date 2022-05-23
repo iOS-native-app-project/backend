@@ -2,17 +2,23 @@ import { Meeting } from '../entities/meeting.entity';
 
 export class MeetingHomeOutput {
   meeting: Meeting;
-  memberRate: MemberRate[];
-  meetingRate: number;
-  meetingDate: MeetingDate;
-}
-
-export class MemberRate {
-  userId: number;
-  rate: number;
+  // meetingDate: MeetingDate;
 }
 
 export class MeetingDate {
   startDate: string;
   endDate: string;
+}
+
+export class MemberRate {
+  meetingDate: MeetingDate;
+  memberRate: Rate[];
+}
+
+export class Rate {
+  userId: number;
+  nickname: string;
+  recommand: number;
+  report: number;
+  rate: number;
 }
