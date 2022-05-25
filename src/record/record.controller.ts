@@ -62,4 +62,26 @@ export class RecordController {
       userId,
     });
   }
+
+  @ApiOperation({
+    summary: '유저 기록 조회',
+    description: '년월을 이용하여 같은 채팅방 유저의 기록을 조회합니다.',
+  })
+  @Get('/userId/:targetUserId')
+  @UseGuards(JwtAuthGuard)
+  findUserRecordByAndYearAndMonth(
+    @GetUser() { id: userId }: User,
+    @Param('meetingId') meetingId: number,
+    @Param('targetUserId') targetUserId: number,
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.recordService.findUserRecordByAndYearAndMonth({
+      year,
+      month,
+      meetingId,
+      userId,
+      targetUserId,
+    });
+  }
 }
