@@ -9,18 +9,11 @@ import { MeetingUser } from '../entities/meeting-user.entity';
 
 @EntityRepository(MeetingUser)
 export class MeetingUserRepository extends Repository<MeetingUser> {
-  async getMeetingUserById(id: number) {
-    return await this.createQueryBuilder('meeting_user')
-      .select(['user_id'])
-      .where('meeting_user.id = :id', { id })
-      .getRawOne();
-  }
-
   async getMeetingUserByMeetingId(id: number) {
     return await this.createQueryBuilder('meeting_user')
       .leftJoinAndSelect('meeting_user.users', 'user')
       .where('meeting_user.meetingId = :id', { id })
-      .getManyAndCount();
+      .getMany();
   }
 
   async getMeetingByUserId(userId: number) {
@@ -29,13 +22,6 @@ export class MeetingUserRepository extends Repository<MeetingUser> {
       .leftJoin('meeting_user.meetings', 'meeting')
       .where('meeting_user.userId = :userId', { userId })
       .getRawMany();
-  }
-
-  async getMeetingNonUserId(userId: number) {
-    return await this.createQueryBuilder('meeting_user')
-      .leftJoinAndSelect('meeting_user.meetings', 'meeting')
-      .where('meeting_user.userId != :userId', { userId })
-      .getMany();
   }
 
   async getMeetingByUserIdAndMeetingId(userId: number, meetingId: number) {
