@@ -16,6 +16,25 @@ export class MeetingRepository extends Repository<Meeting> {
       .getMany();
   }
 
+  async getRandomMeeting() {
+    return this.createQueryBuilder('meeting')
+      .select([
+        'meeting.id',
+        'meeting.name',
+        'meeting.descript',
+        'meeting.image',
+        'meeting.limit',
+        'meeting.cycle',
+        'meeting.unit',
+        'meeting.targetAmount',
+      ])
+      .leftJoinAndSelect('meeting.users', 'user')
+      .leftJoinAndSelect('meeting.category', 'category')
+      .orderBy('rand()')
+      .limit(12)
+      .getRawMany();
+  }
+
   async getAll() {
     return this.createQueryBuilder('meeting')
       .select([

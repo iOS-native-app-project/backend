@@ -29,10 +29,9 @@ export class MeetingService {
     return this.checkPassword(myMeetings);
   }
 
-  // 추천 모임
-  // todo 어떤 추천을 해줘야 하나
+  // 추천 모임 (랜덤 12개)
   async recommendMeeting(): Promise<any[]> {
-    const recommendMeetings = await this.meetingRepository.getAll();
+    const recommendMeetings = await this.meetingRepository.getRandomMeeting();
 
     for (const recommendMeeting of recommendMeetings) {
       const memberCount = await this.meetingUserService.getMemberCount(
