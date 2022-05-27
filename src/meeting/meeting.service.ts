@@ -166,6 +166,7 @@ export class MeetingService {
       const rateData =
         await this.recordRepository.getMeetingValueSumByMeetingUserId(
           meetingUser.userId,
+          meetingId,
           date.startDate,
           date.endDate,
         );
@@ -237,6 +238,7 @@ export class MeetingService {
     const rateData =
       await this.recordRepository.getMeetingValueSumByMeetingUserId(
         userId,
+        meetingId,
         date.startDate,
         date.endDate,
       );
