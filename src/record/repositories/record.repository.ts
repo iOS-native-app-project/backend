@@ -62,7 +62,7 @@ export class RecordRepository extends Repository<Record> {
     return this.createQueryBuilder('record')
       .select(['sum(value) as sum_value'])
       .where(`date BETWEEN '${startDate}' AND '${endDate}'`)
-      .andWhere('meeting_id = :meetingId', { meetingId })
+      .andWhere('record.meeting_id = :meetingId', { meetingId })
       .andWhere('meetingUser.user_id = :id', { id })
       .leftJoin('record.meetingUser', 'meetingUser')
       .groupBy('meeting_user_id')
