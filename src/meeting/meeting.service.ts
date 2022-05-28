@@ -162,10 +162,11 @@ export class MeetingService {
     // eslint-disable-next-line prefer-const
     let memberRate: Rate[] = [];
 
-    for (const meetingUser of meetingUsers[0]) {
+    for (const meetingUser of meetingUsers) {
       const rateData =
         await this.recordRepository.getMeetingValueSumByMeetingUserId(
           meetingUser.userId,
+          meetingId,
           date.startDate,
           date.endDate,
         );
@@ -208,11 +209,10 @@ export class MeetingService {
       meeting.meeting_round,
     );
 
-    const meetingUsers =
-      await this.meetingUserService.getMeetingUserByMeetingId(meetingId);
+    const memberCount = await this.meetingUserService.getMemberCount(meetingId);
 
     // 모임의 목표 달성률
-    const achievement = meetingUsers[1] * meeting.meeting_target_amount;
+    const achievement = memberCount * meeting.meeting_target_amount;
     // 멤버 달성률 총합
     const rateData = await this.recordRepository.getMeetingValueSum(
       date.startDate,
@@ -238,6 +238,7 @@ export class MeetingService {
     const rateData =
       await this.recordRepository.getMeetingValueSumByMeetingUserId(
         userId,
+        meetingId,
         date.startDate,
         date.endDate,
       );
