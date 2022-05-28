@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
 import { MeetingUserRepository } from '../meeting-user/repositories/meeting-user.repository';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { RecordRepository } from './repositories/record.repository';
@@ -70,6 +69,35 @@ export class RecordService {
     });
   }
 
+  async findUserRecordByAndYearAndMonth({
+    targetUserId,
+    meetingId,
+    userId,
+    year,
+    month,
+  }: {
+    targetUserId: number;
+    meetingId: number;
+    userId: number;
+    year: number;
+    month: number;
+  }) {
+    await this.validation({ userId, meetingId });
+    const meetingTargetUserId = await this.validation({
+      userId: targetUserId,
+      meetingId,
+    });
+
+    console.log(meetingTargetUserId);
+
+    return this.recordRepository.findRecords({
+      meetingId,
+      meetingUserId: meetingTargetUserId,
+      year,
+      month,
+    });
+  }
+
   async duplicate({
     meetingId,
     meetingUserId,
@@ -91,8 +119,8 @@ export class RecordService {
   async validation({ userId, meetingId }: { userId: number; meetingId }) {
     const meetingUser =
       await this.meetingUserRepository.getMeetingByUserIdAndMeetingId(
-        meetingId,
         userId,
+        meetingId,
       );
 
     if (!meetingUser) {
