@@ -298,4 +298,9 @@ export class MeetingService {
 
     throw new NotFoundException('비밀번호가 존재하지 않는 모임입니다.');
   }
+
+  async deleteMeeging(userId: number, meetingId: number) {
+    // todo 모임 owner인지 검사
+    return await this.meetingRepository.deleteMeeing(meetingId);
+  }
 }

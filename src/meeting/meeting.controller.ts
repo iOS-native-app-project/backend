@@ -109,4 +109,13 @@ export class MeetingController {
   ) {
     return await this.meetingService.validatePassword(meetingId, password);
   }
+
+  @ApiOperation({ summary: '모임 삭제 API' })
+  @Get('delete')
+  async deleteMeeting(
+    @GetUser() user: User,
+    @Param('meetingId') meetingId: number,
+  ) {
+    return await this.meetingService.deleteMeeging(user.id, meetingId);
+  }
 }

@@ -80,11 +80,11 @@ export class Meeting extends CoreEntity {
 
   @ApiProperty({
     example: '0',
-    description: '목표 주기 (0:하루, 1:일주일, 2:한달)',
+    description: '목표 주기 (1:하루, 7:일주일, 30:한달)',
   })
   @Column('int', {
     name: 'cycle',
-    comment: '주기 (0:하루,1:일주일,2:한달)',
+    comment: '주기 (1:하루, 7:일주일, 30:한달)',
     default: 0,
   })
   cycle: number;
@@ -118,6 +118,13 @@ export class Meeting extends CoreEntity {
     default: 1,
   })
   round: number;
+
+  @Column('int', {
+    name: 'is_deleted',
+    comment: '삭제 여부',
+    default: 0,
+  })
+  isDeleted: number;
 
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meetings)
   meetingUsers: MeetingUser[];
