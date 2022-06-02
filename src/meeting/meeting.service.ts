@@ -122,16 +122,8 @@ export class MeetingService {
     const startDate = new Date(createdAt);
     const endDate = new Date(createdAt);
 
-    if (cycle == 0) {
-      startDate.setDate(startDate.getDate() + 1 * (round - 1));
-      endDate.setDate(endDate.getDate() + 1 * round);
-    } else if (cycle == 1) {
-      startDate.setDate(startDate.getDate() + 7 * (round - 1));
-      endDate.setDate(endDate.getDate() + 7 * round);
-    } else {
-      startDate.setDate(startDate.getDate() + 30 * (round - 1));
-      endDate.setDate(endDate.getDate() + 30 * round);
-    }
+    startDate.setDate(startDate.getDate() + cycle * (round - 1));
+    endDate.setDate(endDate.getDate() + cycle * round);
 
     return {
       startDate: checkDateFormat(startDate),
@@ -162,13 +154,12 @@ export class MeetingService {
     let memberRate: Rate[] = [];
 
     for (const meetingUser of meetingUsers) {
-      const rateData =
-        await this.recordRepository.getMeetingValueSumByMeetingUserId(
-          meetingUser.userId,
-          meetingId,
-          date.startDate,
-          date.endDate,
-        );
+      const rateData = await this.recordRepository.getMeetingValueSum(
+        date.startDate,
+        date.endDate,
+        meetingId,
+        meetingUser.userId,
+      );
 
       memberRate.push({
         userId: meetingUser.userId,
@@ -234,13 +225,12 @@ export class MeetingService {
       meeting.meeting_round,
     );
 
-    const rateData =
-      await this.recordRepository.getMeetingValueSumByMeetingUserId(
-        userId,
-        meetingId,
-        date.startDate,
-        date.endDate,
-      );
+    const rateData = await this.recordRepository.getMeetingValueSum(
+      date.startDate,
+      date.endDate,
+      meetingId,
+      userId,
+    );
 
     const rate = rateData
       ? (rateData.sum_value / meeting.meeting_target_amount) * 100

@@ -53,27 +53,23 @@ export class RecordRepository extends Repository<Record> {
     );
   }
 
-  getMeetingValueSumByMeetingUserId(
-    id: number,
-    meetingId: number,
+  getMeetingValueSum(
     startDate: string,
     endDate: string,
+    meetingId: number,
+    userId?: number,
   ) {
-    return this.createQueryBuilder('record')
+    const qb = this.createQueryBuilder('record')
       .select(['sum(value) as sum_value'])
       .where(`date BETWEEN '${startDate}' AND '${endDate}'`)
-      .andWhere('record.meeting_id = :meetingId', { meetingId })
-      .andWhere('meetingUser.user_id = :id', { id })
-      .leftJoin('record.meetingUser', 'meetingUser')
-      .groupBy('meeting_user_id')
-      .getRawOne();
-  }
+      .andWhere('record.meeting_id = :meetingId', { meetingId });
 
-  getMeetingValueSum(startDate: string, endDate: string, id: number) {
-    return this.createQueryBuilder('record')
-      .select(['sum(value) as sum_value'])
-      .where(`date BETWEEN '${startDate}' AND '${endDate}'`)
-      .andWhere('meeting_id = :id', { id })
-      .getRawOne();
+    if (userId) {
+      qb.andWhere('meetingUser.user_id = :userId', { userId })
+        .leftJoin('record.meetingUser', 'meetingUser')
+        .groupBy('meeting_user_id');
+    }
+
+    return qb.getRawOne();
   }
 }
