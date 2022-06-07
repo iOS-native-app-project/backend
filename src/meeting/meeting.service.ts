@@ -1,4 +1,9 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { checkDateFormat } from 'src/common/utility/check-format';
@@ -7,7 +12,7 @@ import { RecordRepository } from 'src/record/repositories/record.repository';
 import { getManager } from 'typeorm';
 import { MeetingUser } from '../meeting-user/entities/meeting-user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { MeetingHomeOutput, MemberRate, Rate } from './dto/meeting-output.dto';
+import { MemberRate, Rate } from './dto/meeting-output.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingRepository } from './repositories/meeting.repository';
 
@@ -31,15 +36,16 @@ export class MeetingService {
 
   // 추천 모임 (랜덤 12개)
   async recommendMeeting(): Promise<any[]> {
-    const recommendMeetings = await this.meetingRepository.getRandomMeeting();
+    const meetingInfos = await this.meetingRepository.findAll(true);
+    const meetings = this.checkPassword(meetingInfos);
 
-    for (const recommendMeeting of recommendMeetings) {
+    for (const meeting of meetings) {
       const memberCount = await this.meetingUserService.getMemberCount(
-        recommendMeeting.meetingId,
+        meeting.id,
       );
-      recommendMeeting['memberCount'] = memberCount;
+      meeting['memberCount'] = memberCount;
     }
-    return recommendMeetings;
+    return meetings;
   }
 
   // 모임 첫 화면
@@ -104,11 +110,7 @@ export class MeetingService {
   }
 
   // 모임 홈
-  async getMeetingHome(
-    userId: number,
-    id: number,
-  ): Promise<MeetingHomeOutput | MeetingUser> {
-    // user validation
+  async getMeetingHome(userId: number, id: number): Promise<Meeting> {
     await this.validateUser(id, userId);
     return await this.meetingRepository.getMeetingById(id);
   }
@@ -137,14 +139,13 @@ export class MeetingService {
     meetingId: number,
   ): Promise<MemberRate | MeetingUser> {
     await this.validateUser(meetingId, userId);
-
     const meeting = await this.meetingRepository.getMeetingById(meetingId);
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
-      meeting.meeting_created_at,
-      meeting.meeting_cycle,
-      meeting.meeting_round,
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
     );
 
     const meetingUsers =
@@ -166,9 +167,7 @@ export class MeetingService {
         nickname: meetingUser.users.nickname,
         recommand: meetingUser.recommand,
         report: meetingUser.report,
-        rate: rateData
-          ? (rateData.sum_value / meeting.meeting_target_amount) * 100
-          : 0,
+        rate: rateData ? (rateData.sum_value / meeting.targetAmount) * 100 : 0,
       });
     }
     // 달성률 순서대로 정렬
@@ -189,20 +188,19 @@ export class MeetingService {
     meetingId: number,
   ): Promise<number | MeetingUser> {
     await this.validateUser(meetingId, userId);
-
     const meeting = await this.meetingRepository.getMeetingById(meetingId);
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
-      meeting.meeting_created_at,
-      meeting.meeting_cycle,
-      meeting.meeting_round,
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
     );
 
     const memberCount = await this.meetingUserService.getMemberCount(meetingId);
 
     // 모임의 목표 달성률
-    const achievement = memberCount * meeting.meeting_target_amount;
+    const achievement = memberCount * meeting.targetAmount;
     // 멤버 달성률 총합
     const rateData = await this.recordRepository.getMeetingValueSum(
       date.startDate,
@@ -215,14 +213,13 @@ export class MeetingService {
   // 나의 달성률 계산
   async calMyRate(userId: number, meetingId: number): Promise<number> {
     await this.validateUser(meetingId, userId);
-
     const meeting = await this.meetingRepository.getMeetingById(meetingId);
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
-      meeting.meeting_created_at,
-      meeting.meeting_cycle,
-      meeting.meeting_round,
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
     );
 
     const rateData = await this.recordRepository.getMeetingValueSum(
@@ -233,7 +230,7 @@ export class MeetingService {
     );
 
     const rate = rateData
-      ? (rateData.sum_value / meeting.meeting_target_amount) * 100
+      ? (rateData.sum_value / meeting.targetAmount) * 100
       : 0;
 
     return rate;
@@ -290,7 +287,11 @@ export class MeetingService {
   }
 
   async deleteMeeging(userId: number, meetingId: number) {
-    // todo 모임 owner인지 검사
-    return await this.meetingRepository.deleteMeeing(meetingId);
+    const ownerCheck = await this.meetingRepository.getMeetingById(
+      meetingId,
+      userId,
+    );
+    if (ownerCheck) return await this.meetingRepository.deleteMeeing(meetingId);
+    throw new UnauthorizedException('모임의 관리자가 아닙니다.');
   }
 }

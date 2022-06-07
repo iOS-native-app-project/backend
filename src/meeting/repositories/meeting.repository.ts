@@ -9,62 +9,37 @@ import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
 export class MeetingRepository extends Repository<Meeting> {
-  async findAll() {
-    return this.createQueryBuilder('meeting')
+  async findAll(random?: boolean) {
+    const qb = this.createQueryBuilder('meeting')
       .where('meeting.isDeleted = 0')
       .leftJoinAndSelect('meeting.users', 'user')
-      .leftJoinAndSelect('meeting.category', 'category')
-      .getMany();
+      .leftJoinAndSelect('meeting.category', 'category');
+
+    if (random) qb.orderBy('rand()').limit(12);
+    else qb.orderBy('meeting.created_at', 'DESC');
+
+    return qb.getMany();
   }
 
-  async getRandomMeeting() {
-    return this.createQueryBuilder('meeting')
-      .select([
-        'meeting.id',
-        'meeting.name',
-        'meeting.descript',
-        'meeting.image',
-        'meeting.limit',
-        'meeting.cycle',
-        'meeting.unit',
-        'meeting.targetAmount',
-      ])
+  async getMeetingById(id: number, userId?: number) {
+    const qb = this.createQueryBuilder('meeting')
       .where('meeting.isDeleted = 0')
+      .andWhere('meeting.id = :id', { id })
       .leftJoinAndSelect('meeting.users', 'user')
-      .leftJoinAndSelect('meeting.category', 'category')
-      .orderBy('rand()')
-      .limit(12)
-      .getRawMany();
-  }
+      .leftJoinAndSelect('meeting.category', 'category');
 
-  async getMeetingById(id: number) {
-    return this.createQueryBuilder('meeting')
-      .select([
-        'meeting.id',
-        'meeting.createdAt',
-        'meeting.name',
-        'meeting.image',
-        'meeting.descript',
-        'meeting.limit',
-        'meeting.cycle',
-        'meeting.unit',
-        'meeting.round',
-        'meeting.targetAmount',
-      ])
-      .leftJoinAndSelect('meeting.users', 'user')
-      .leftJoinAndSelect('meeting.category', 'category')
-      .where('meeting.id = :id', { id })
-      .andWhere('meeting.isDeleted = 0')
-      .getRawOne();
+    if (userId) qb.andWhere('meeting.ownerId = :userId', { userId });
+
+    return qb.getOne();
   }
 
   async getMeetingBySearch(search: string) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.name like :name', { name: '%' + search + '%' })
+      .where('meeting.isDeleted = 0')
+      .andWhere('meeting.name like :name', { name: '%' + search + '%' })
       .orWhere('meeting.descript like :descript', {
         descript: '%' + search + '%',
       })
-      .andWhere('meeting.isDeleted = 0')
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
       .getMany();
@@ -72,8 +47,8 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async getMeetingByCategory(categoryId: number[]) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.categoryId IN (:...ids)', { ids: categoryId })
-      .andWhere('meeting.isDeleted = 0')
+      .where('meeting.isDeleted = 0')
+      .andWhere('meeting.categoryId IN (:...ids)', { ids: categoryId })
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
       .getMany();
@@ -94,15 +69,5 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async deleteMeeing(meetingId: number) {
     return this.update(meetingId, { isDeleted: 1 });
-  }
-
-  async checkMeetingOwner(userId: number, meetingId: number) {
-    return this.createQueryBuilder('meeting')
-      .where('meeting.isDeleted = 0')
-      .andWhere('meeting.id = :meetingId', { meetingId })
-      .andWhere('meeting.ownerId = :userId', { userId })
-      .leftJoinAndSelect('meeting.users', 'user')
-      .leftJoinAndSelect('meeting.category', 'category')
-      .getMany();
   }
 }
