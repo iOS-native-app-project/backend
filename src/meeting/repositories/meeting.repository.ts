@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import {
   EntityManager,
   EntityRepository,
@@ -11,7 +12,6 @@ import { Meeting } from '../entities/meeting.entity';
 export class MeetingRepository extends Repository<Meeting> {
   async findAll(random?: boolean) {
     const qb = this.createQueryBuilder('meeting')
-      .where('meeting.isDeleted = 0')
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category');
 
@@ -23,8 +23,7 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async getMeetingById(id: number, userId?: number) {
     const qb = this.createQueryBuilder('meeting')
-      .where('meeting.isDeleted = 0')
-      .andWhere('meeting.id = :id', { id })
+      .where('meeting.id = :id', { id })
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category');
 
@@ -35,7 +34,6 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async getMeetingBySearch(search: string) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.isDeleted = 0')
       .andWhere('meeting.name like :name', { name: '%' + search + '%' })
       .orWhere('meeting.descript like :descript', {
         descript: '%' + search + '%',
@@ -47,7 +45,6 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async getMeetingByCategory(categoryId: number[]) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.isDeleted = 0')
       .andWhere('meeting.categoryId IN (:...ids)', { ids: categoryId })
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
@@ -67,7 +64,13 @@ export class MeetingRepository extends Repository<Meeting> {
     );
   }
 
-  async deleteMeeing(meetingId: number) {
-    return this.update(meetingId, { isDeleted: 1 });
+  async deleteMeeing(id: number) {
+    try {
+      const deleteResponse = await this.softDelete(id);
+      if (!deleteResponse.affected)
+        throw new NotFoundException('존재하지 않는 모임입니다.');
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

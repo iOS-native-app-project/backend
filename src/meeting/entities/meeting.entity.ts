@@ -1,7 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from 'src/category/entities/category.entity';
-import { CoreEntity } from 'src/common/entity/core.entity';
+import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
 import { MeetingUser } from '../../meeting-user/entities/meeting-user.entity';
 import {
@@ -16,7 +16,7 @@ import {
 import * as bcrypt from 'bcrypt';
 
 @Entity({ name: 'meeting' })
-export class Meeting extends CoreEntity {
+export class Meeting extends CoreEntityAndDelete {
   @ApiProperty({
     example: '모임이름',
     description: '모임이름',
@@ -118,13 +118,6 @@ export class Meeting extends CoreEntity {
     default: 1,
   })
   round: number;
-
-  @Column('int', {
-    name: 'is_deleted',
-    comment: '삭제 여부',
-    default: 0,
-  })
-  isDeleted: number;
 
   @OneToMany(() => MeetingUser, (tbMeetingUser) => tbMeetingUser.meetings)
   meetingUsers: MeetingUser[];

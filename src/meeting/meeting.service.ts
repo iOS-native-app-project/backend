@@ -40,10 +40,9 @@ export class MeetingService {
     const meetings = this.checkPassword(meetingInfos);
 
     for (const meeting of meetings) {
-      const memberCount = await this.meetingUserService.getMemberCount(
+      meeting['memberCount'] = await this.meetingUserService.getMemberCount(
         meeting.id,
       );
-      meeting['memberCount'] = memberCount;
     }
     return meetings;
   }
@@ -291,6 +290,7 @@ export class MeetingService {
       meetingId,
       userId,
     );
+
     if (ownerCheck) return await this.meetingRepository.deleteMeeing(meetingId);
     throw new UnauthorizedException('모임의 관리자가 아닙니다.');
   }

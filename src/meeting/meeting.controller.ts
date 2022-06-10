@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
@@ -111,10 +120,10 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: '모임 삭제 API' })
-  @Get('delete')
+  @Delete('delete')
   async deleteMeeting(
     @GetUser() user: User,
-    @Param('meetingId') meetingId: number,
+    @Headers('meetingId') meetingId: number,
   ) {
     return await this.meetingService.deleteMeeging(user.id, meetingId);
   }
