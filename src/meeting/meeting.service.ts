@@ -109,9 +109,9 @@ export class MeetingService {
   }
 
   // 모임 홈
-  async getMeetingHome(userId: number, id: number): Promise<Meeting> {
-    await this.validateUser(id, userId);
-    return await this.meetingRepository.getMeetingById(id);
+  async getMeetingHome(userId: number, meetingId: number): Promise<Meeting> {
+    await this.validateUser(meetingId, userId);
+    return await this.meetingRepository.getMeetingById({ meetingId });
   }
 
   // 모임 주기 계산
@@ -138,7 +138,7 @@ export class MeetingService {
     meetingId: number,
   ): Promise<MemberRate | MeetingUser> {
     await this.validateUser(meetingId, userId);
-    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+    const meeting = await this.meetingRepository.getMeetingById({ meetingId });
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
@@ -187,7 +187,7 @@ export class MeetingService {
     meetingId: number,
   ): Promise<number | MeetingUser> {
     await this.validateUser(meetingId, userId);
-    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+    const meeting = await this.meetingRepository.getMeetingById({ meetingId });
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
@@ -212,7 +212,7 @@ export class MeetingService {
   // 나의 달성률 계산
   async calMyRate(userId: number, meetingId: number): Promise<number> {
     await this.validateUser(meetingId, userId);
-    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+    const meeting = await this.meetingRepository.getMeetingById({ meetingId });
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
@@ -286,10 +286,10 @@ export class MeetingService {
   }
 
   async deleteMeeging(userId: number, meetingId: number) {
-    const ownerCheck = await this.meetingRepository.getMeetingById(
+    const ownerCheck = await this.meetingRepository.getMeetingById({
       meetingId,
       userId,
-    );
+    });
 
     if (ownerCheck) return await this.meetingRepository.deleteMeeing(meetingId);
     throw new UnauthorizedException('모임의 관리자가 아닙니다.');

@@ -21,9 +21,15 @@ export class MeetingRepository extends Repository<Meeting> {
     return qb.getMany();
   }
 
-  async getMeetingById(id: number, userId?: number) {
+  async getMeetingById({
+    meetingId,
+    userId,
+  }: {
+    meetingId: number;
+    userId?: number;
+  }) {
     const qb = this.createQueryBuilder('meeting')
-      .where('meeting.id = :id', { id })
+      .where('meeting.id = :meetingId', { meetingId })
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category');
 
