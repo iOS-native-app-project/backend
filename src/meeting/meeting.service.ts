@@ -39,12 +39,17 @@ export class MeetingService {
     const meetingInfos = await this.meetingRepository.findAll(true);
     const meetings = this.checkPassword(meetingInfos);
 
-    for (const meeting of meetings) {
-      meeting['memberCount'] = await this.meetingUserService.getMemberCount(
-        meeting.id,
-      );
-    }
-    return meetings;
+    return await Promise.all(
+      meetings.map(async (meeting) => {
+        const memberCount = await this.meetingUserService.getMemberCount(
+          meeting.id,
+        );
+        return {
+          ...meeting,
+          memberCount: memberCount,
+        };
+      }),
+    );
   }
 
   // 모임 첫 화면
