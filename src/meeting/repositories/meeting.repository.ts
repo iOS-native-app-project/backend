@@ -10,15 +10,37 @@ import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
 export class MeetingRepository extends Repository<Meeting> {
-  async findAll(random?: boolean) {
-    const qb = this.createQueryBuilder('meeting')
+  async getMeetingByUserId(userId: number) {
+    return await this.createQueryBuilder('meeting')
+      .innerJoinAndSelect(
+        'meeting.meetingUsers',
+        'meeting_user',
+        `meeting_user.userId = ${userId}`,
+      )
+      .getMany();
+  }
+
+  async findAll() {
+    return await this.createQueryBuilder('meeting')
       .leftJoinAndSelect('meeting.users', 'user')
-      .leftJoinAndSelect('meeting.category', 'category');
+      .leftJoinAndSelect('meeting.category', 'category')
+      .orderBy('meeting.created_at', 'DESC')
+      .getMany();
+  }
 
-    if (random) qb.orderBy('rand()').limit(12);
-    else qb.orderBy('meeting.created_at', 'DESC');
-
-    return qb.getMany();
+  async random() {
+    return await this.createQueryBuilder('meeting')
+      .leftJoinAndSelect('meeting.users', 'user')
+      .leftJoinAndSelect('meeting.category', 'category')
+      .innerJoin(
+        (subQuery) => {
+          return subQuery.from(Meeting, 'meeting').orderBy('rand()').limit(12);
+        },
+        'sq',
+        'meeting.id = sq.id',
+      )
+      .withDeleted()
+      .getMany();
   }
 
   async getMeetingById({

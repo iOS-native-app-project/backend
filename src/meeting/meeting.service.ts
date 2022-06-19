@@ -30,13 +30,13 @@ export class MeetingService {
   // 매인 홈
   // todo 오늘의 한마디
   async getMainMeeting(userId: number): Promise<Meeting[]> {
-    const myMeetings = await this.meetingUserService.getMeetingByUserId(userId);
+    const myMeetings = await this.meetingRepository.getMeetingByUserId(userId);
     return this.checkPassword(myMeetings);
   }
 
   // 추천 모임 (랜덤 12개)
   async recommendMeeting(): Promise<any[]> {
-    const meetingInfos = await this.meetingRepository.findAll(true);
+    const meetingInfos = await this.meetingRepository.random();
     const meetings = this.checkPassword(meetingInfos);
 
     return await Promise.all(
@@ -90,7 +90,8 @@ export class MeetingService {
     userId: number,
     meetingInfos: Meeting[],
   ): Promise<Meeting[]> {
-    const myMeeting = await this.meetingUserService.getMeetingByUserId(userId);
+    const myMeeting = await this.meetingRepository.getMeetingByUserId(userId);
+    console.log(myMeeting);
 
     for (const meetingInfo of meetingInfos) {
       meetingInfo['memberCount'] = await this.meetingUserService.getMemberCount(

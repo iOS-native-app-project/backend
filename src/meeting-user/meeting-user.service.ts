@@ -40,10 +40,6 @@ export class MeetingUserService {
     );
   }
 
-  async getMeetingByUserId(userId: number) {
-    return await this.meetingUserRepository.getMeetingByUserId(userId);
-  }
-
   async getMemberCount(meetingId: number) {
     return await this.meetingUserRepository.count({ meetingId });
   }
