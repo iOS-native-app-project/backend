@@ -1,9 +1,3 @@
-import { Meeting } from '../entities/meeting.entity';
-
-export class MeetingHomeOutput {
-  meeting: Meeting;
-}
-
 export class MeetingDate {
   startDate: string;
   endDate: string;

@@ -1,4 +1,9 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { checkDateFormat } from 'src/common/utility/check-format';
@@ -7,7 +12,7 @@ import { RecordRepository } from 'src/record/repositories/record.repository';
 import { getManager } from 'typeorm';
 import { MeetingUser } from '../meeting-user/entities/meeting-user.entity';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
-import { MeetingHomeOutput, MemberRate, Rate } from './dto/meeting-output.dto';
+import { MemberRate, Rate } from './dto/meeting-output.dto';
 import { Meeting } from './entities/meeting.entity';
 import { MeetingRepository } from './repositories/meeting.repository';
 
@@ -25,22 +30,26 @@ export class MeetingService {
   // 매인 홈
   // todo 오늘의 한마디
   async getMainMeeting(userId: number): Promise<Meeting[]> {
-    const myMeetings = await this.meetingUserService.getMeetingByUserId(userId);
+    const myMeetings = await this.meetingRepository.getMeetingByUserId(userId);
     return this.checkPassword(myMeetings);
   }
 
-  // 추천 모임
-  // todo 어떤 추천을 해줘야 하나
+  // 추천 모임 (랜덤 12개)
   async recommendMeeting(): Promise<any[]> {
-    const recommendMeetings = await this.meetingRepository.getAll();
+    const meetingInfos = await this.meetingRepository.random();
+    const meetings = this.checkPassword(meetingInfos);
 
-    for (const recommendMeeting of recommendMeetings) {
-      const memberCount = await this.meetingUserService.getMemberCount(
-        recommendMeeting.meetingId,
-      );
-      recommendMeeting['memberCount'] = memberCount;
-    }
-    return recommendMeetings;
+    return await Promise.all(
+      meetings.map(async (meeting) => {
+        const memberCount = await this.meetingUserService.getMemberCount(
+          meeting.id,
+        );
+        return {
+          ...meeting,
+          memberCount: memberCount,
+        };
+      }),
+    );
   }
 
   // 모임 첫 화면
@@ -81,7 +90,8 @@ export class MeetingService {
     userId: number,
     meetingInfos: Meeting[],
   ): Promise<Meeting[]> {
-    const myMeeting = await this.meetingUserService.getMeetingByUserId(userId);
+    const myMeeting = await this.meetingRepository.getMeetingByUserId(userId);
+    console.log(myMeeting);
 
     for (const meetingInfo of meetingInfos) {
       meetingInfo['memberCount'] = await this.meetingUserService.getMemberCount(
@@ -105,13 +115,9 @@ export class MeetingService {
   }
 
   // 모임 홈
-  async getMeetingHome(
-    userId: number,
-    id: number,
-  ): Promise<MeetingHomeOutput | MeetingUser> {
-    // user validation
-    await this.validateUser(id, userId);
-    return await this.meetingRepository.getMeetingById(id);
+  async getMeetingHome(userId: number, meetingId: number): Promise<Meeting> {
+    await this.validateUser(meetingId, userId);
+    return await this.meetingRepository.getMeetingById({ meetingId });
   }
 
   // 모임 주기 계산
@@ -123,16 +129,8 @@ export class MeetingService {
     const startDate = new Date(createdAt);
     const endDate = new Date(createdAt);
 
-    if (cycle == 0) {
-      startDate.setDate(startDate.getDate() + 1 * (round - 1));
-      endDate.setDate(endDate.getDate() + 1 * round);
-    } else if (cycle == 1) {
-      startDate.setDate(startDate.getDate() + 7 * (round - 1));
-      endDate.setDate(endDate.getDate() + 7 * round);
-    } else {
-      startDate.setDate(startDate.getDate() + 30 * (round - 1));
-      endDate.setDate(endDate.getDate() + 30 * round);
-    }
+    startDate.setDate(startDate.getDate() + cycle * (round - 1));
+    endDate.setDate(endDate.getDate() + cycle * round);
 
     return {
       startDate: checkDateFormat(startDate),
@@ -146,14 +144,13 @@ export class MeetingService {
     meetingId: number,
   ): Promise<MemberRate | MeetingUser> {
     await this.validateUser(meetingId, userId);
-
-    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+    const meeting = await this.meetingRepository.getMeetingById({ meetingId });
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
-      meeting.meeting_created_at,
-      meeting.meeting_cycle,
-      meeting.meeting_round,
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
     );
 
     const meetingUsers =
@@ -163,22 +160,19 @@ export class MeetingService {
     let memberRate: Rate[] = [];
 
     for (const meetingUser of meetingUsers) {
-      const rateData =
-        await this.recordRepository.getMeetingValueSumByMeetingUserId(
-          meetingUser.userId,
-          meetingId,
-          date.startDate,
-          date.endDate,
-        );
+      const rateData = await this.recordRepository.getMeetingValueSum(
+        date.startDate,
+        date.endDate,
+        meetingId,
+        meetingUser.userId,
+      );
 
       memberRate.push({
         userId: meetingUser.userId,
         nickname: meetingUser.users.nickname,
         recommand: meetingUser.recommand,
         report: meetingUser.report,
-        rate: rateData
-          ? (rateData.sum_value / meeting.meeting_target_amount) * 100
-          : 0,
+        rate: rateData ? (rateData.sum_value / meeting.targetAmount) * 100 : 0,
       });
     }
     // 달성률 순서대로 정렬
@@ -199,20 +193,19 @@ export class MeetingService {
     meetingId: number,
   ): Promise<number | MeetingUser> {
     await this.validateUser(meetingId, userId);
-
-    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+    const meeting = await this.meetingRepository.getMeetingById({ meetingId });
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
-      meeting.meeting_created_at,
-      meeting.meeting_cycle,
-      meeting.meeting_round,
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
     );
 
     const memberCount = await this.meetingUserService.getMemberCount(meetingId);
 
     // 모임의 목표 달성률
-    const achievement = memberCount * meeting.meeting_target_amount;
+    const achievement = memberCount * meeting.targetAmount;
     // 멤버 달성률 총합
     const rateData = await this.recordRepository.getMeetingValueSum(
       date.startDate,
@@ -225,26 +218,24 @@ export class MeetingService {
   // 나의 달성률 계산
   async calMyRate(userId: number, meetingId: number): Promise<number> {
     await this.validateUser(meetingId, userId);
-
-    const meeting = await this.meetingRepository.getMeetingById(meetingId);
+    const meeting = await this.meetingRepository.getMeetingById({ meetingId });
 
     // 모임 주기 계산
     const date = await this.calMeetingDate(
-      meeting.meeting_created_at,
-      meeting.meeting_cycle,
-      meeting.meeting_round,
+      meeting.createdAt,
+      meeting.cycle,
+      meeting.round,
     );
 
-    const rateData =
-      await this.recordRepository.getMeetingValueSumByMeetingUserId(
-        userId,
-        meetingId,
-        date.startDate,
-        date.endDate,
-      );
+    const rateData = await this.recordRepository.getMeetingValueSum(
+      date.startDate,
+      date.endDate,
+      meetingId,
+      userId,
+    );
 
     const rate = rateData
-      ? (rateData.sum_value / meeting.meeting_target_amount) * 100
+      ? (rateData.sum_value / meeting.targetAmount) * 100
       : 0;
 
     return rate;
@@ -298,5 +289,15 @@ export class MeetingService {
       return await bcrypt.compare(password, meeting.password);
 
     throw new NotFoundException('비밀번호가 존재하지 않는 모임입니다.');
+  }
+
+  async deleteMeeging(userId: number, meetingId: number) {
+    const ownerCheck = await this.meetingRepository.getMeetingById({
+      meetingId,
+      userId,
+    });
+
+    if (ownerCheck) return await this.meetingRepository.deleteMeeing(meetingId);
+    throw new UnauthorizedException('모임의 관리자가 아닙니다.');
   }
 }

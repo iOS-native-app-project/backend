@@ -1,3 +1,4 @@
+import { HttpException, NotFoundException } from '@nestjs/common';
 import {
   EntityManager,
   EntityRepository,
@@ -9,53 +10,59 @@ import { Meeting } from '../entities/meeting.entity';
 
 @EntityRepository(Meeting)
 export class MeetingRepository extends Repository<Meeting> {
-  async findAll() {
-    return this.createQueryBuilder('meeting')
-      .leftJoinAndSelect('meeting.users', 'user')
-      .leftJoinAndSelect('meeting.category', 'category')
+  async getMeetingByUserId(userId: number) {
+    return await this.createQueryBuilder('meeting')
+      .innerJoinAndSelect(
+        'meeting.meetingUsers',
+        'meeting_user',
+        `meeting_user.userId = ${userId}`,
+      )
       .getMany();
   }
 
-  async getAll() {
-    return this.createQueryBuilder('meeting')
-      .select([
-        'meeting.id',
-        'meeting.name',
-        'meeting.descript',
-        'meeting.image',
-        'meeting.limit',
-        'meeting.cycle',
-        'meeting.unit',
-        'meeting.targetAmount',
-      ])
+  async findAll() {
+    return await this.createQueryBuilder('meeting')
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
-      .getRawMany();
+      .orderBy('meeting.created_at', 'DESC')
+      .getMany();
   }
 
-  async getMeetingById(id: number) {
-    return this.createQueryBuilder('meeting')
-      .select([
-        'meeting.id',
-        'meeting.createdAt',
-        'meeting.name',
-        'meeting.image',
-        'meeting.descript',
-        'meeting.limit',
-        'meeting.cycle',
-        'meeting.unit',
-        'meeting.round',
-        'meeting.targetAmount',
-      ])
+  async random() {
+    return await this.createQueryBuilder('meeting')
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
-      .where('meeting.id = :id', { id })
-      .getRawOne();
+      .innerJoin(
+        (subQuery) => {
+          return subQuery.from(Meeting, 'meeting').orderBy('rand()').limit(12);
+        },
+        'sq',
+        'meeting.id = sq.id',
+      )
+      .withDeleted()
+      .getMany();
+  }
+
+  async getMeetingById({
+    meetingId,
+    userId,
+  }: {
+    meetingId: number;
+    userId?: number;
+  }) {
+    const qb = this.createQueryBuilder('meeting')
+      .where('meeting.id = :meetingId', { meetingId })
+      .leftJoinAndSelect('meeting.users', 'user')
+      .leftJoinAndSelect('meeting.category', 'category');
+
+    if (userId) qb.andWhere('meeting.ownerId = :userId', { userId });
+
+    return qb.getOne();
   }
 
   async getMeetingBySearch(search: string) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.name like :name', { name: '%' + search + '%' })
+      .andWhere('meeting.name like :name', { name: '%' + search + '%' })
       .orWhere('meeting.descript like :descript', {
         descript: '%' + search + '%',
       })
@@ -66,7 +73,7 @@ export class MeetingRepository extends Repository<Meeting> {
 
   async getMeetingByCategory(categoryId: number[]) {
     return this.createQueryBuilder('meeting')
-      .where('meeting.categoryId IN (:...ids)', { ids: categoryId })
+      .andWhere('meeting.categoryId IN (:...ids)', { ids: categoryId })
       .leftJoinAndSelect('meeting.users', 'user')
       .leftJoinAndSelect('meeting.category', 'category')
       .getMany();
@@ -83,5 +90,15 @@ export class MeetingRepository extends Repository<Meeting> {
         ownerId: userId,
       }),
     );
+  }
+
+  async deleteMeeing(id: number) {
+    try {
+      const deleteResponse = await this.softDelete(id);
+      if (!deleteResponse.affected)
+        throw new NotFoundException('존재하지 않는 모임입니다.');
+    } catch (error) {
+      throw new HttpException({ error: error }, 500);
+    }
   }
 }

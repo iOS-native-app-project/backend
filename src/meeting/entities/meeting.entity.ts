@@ -1,7 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from 'src/category/entities/category.entity';
-import { CoreEntity } from 'src/common/entity/core.entity';
+import { CoreEntityAndDelete } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entities/user.entity';
 import { MeetingUser } from '../../meeting-user/entities/meeting-user.entity';
 import {
@@ -16,7 +16,7 @@ import {
 import * as bcrypt from 'bcrypt';
 
 @Entity({ name: 'meeting' })
-export class Meeting extends CoreEntity {
+export class Meeting extends CoreEntityAndDelete {
   @ApiProperty({
     example: '모임이름',
     description: '모임이름',
@@ -80,18 +80,18 @@ export class Meeting extends CoreEntity {
 
   @ApiProperty({
     example: '0',
-    description: '목표 주기 (0:하루, 1:일주일, 2:한달)',
+    description: '목표 주기 (1:하루, 7:일주일, 30:한달)',
   })
   @Column('int', {
     name: 'cycle',
-    comment: '주기 (0:하루,1:일주일,2:한달)',
+    comment: '주기 (1:하루, 7:일주일, 30:한달)',
     default: 0,
   })
   cycle: number;
 
   @ApiProperty({
     example: '횟수',
-    description: '목표 단위 (횟수, 거리, 시간)',
+    description: '목표 단위 (횟수:회/거리:m,km/시간:분,시간)',
   })
   @Column('varchar', {
     name: 'unit',
@@ -103,11 +103,11 @@ export class Meeting extends CoreEntity {
 
   @ApiProperty({
     example: '10',
-    description: '목표달성수치 (거리:m 단위, 시간:분 단위)',
+    description: '목표달성수치',
   })
   @Column('int', {
     name: 'target_amount',
-    comment: '목표달성수치 (거리:m 단위, 시간:분 단위)',
+    comment: '목표달성수치',
     default: 10,
   })
   targetAmount: number;
