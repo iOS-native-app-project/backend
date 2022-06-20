@@ -91,7 +91,7 @@ export class Meeting extends CoreEntityAndDelete {
 
   @ApiProperty({
     example: '횟수',
-    description: '목표 단위 (횟수, 거리, 시간)',
+    description: '목표 단위 (횟수:회/거리:m,km/시간:분,시간)',
   })
   @Column('varchar', {
     name: 'unit',
@@ -103,11 +103,11 @@ export class Meeting extends CoreEntityAndDelete {
 
   @ApiProperty({
     example: '10',
-    description: '목표달성수치 (거리:m 단위, 시간:분 단위)',
+    description: '목표달성수치',
   })
   @Column('int', {
     name: 'target_amount',
-    comment: '목표달성수치 (거리:m 단위, 시간:분 단위)',
+    comment: '목표달성수치',
     default: 10,
   })
   targetAmount: number;
