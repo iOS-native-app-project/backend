@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { HttpException, NotFoundException } from '@nestjs/common';
 import {
   EntityManager,
   EntityRepository,
@@ -98,7 +98,7 @@ export class MeetingRepository extends Repository<Meeting> {
       if (!deleteResponse.affected)
         throw new NotFoundException('존재하지 않는 모임입니다.');
     } catch (error) {
-      console.log(error);
+      throw new HttpException({ error: error }, 500);
     }
   }
 }

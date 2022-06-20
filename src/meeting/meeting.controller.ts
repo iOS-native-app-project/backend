@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   UseGuards,
@@ -120,6 +121,7 @@ export class MeetingController {
 
   @ApiOperation({ summary: '모임 삭제 API' })
   @Delete('delete/:meetingId')
+  @HttpCode(204)
   async deleteMeeting(
     @GetUser() user: User,
     @Param('meetingId') meetingId: number,
