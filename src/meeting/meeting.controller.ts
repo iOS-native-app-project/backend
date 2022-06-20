@@ -120,11 +120,11 @@ export class MeetingController {
   }
 
   @ApiOperation({ summary: '모임 삭제 API' })
-  @Delete('delete')
+  @Delete('delete/:meetingId')
   async deleteMeeting(
     @GetUser() user: User,
-    @Headers('meetingId') meetingId: number,
+    @Param('meetingId') meetingId: number,
   ) {
-    return await this.meetingService.deleteMeeging(user.id, meetingId);
+    await this.meetingService.deleteMeeging(user.id, meetingId);
   }
 }
